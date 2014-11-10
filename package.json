@@ -1,0 +1,26 @@
+{
+  "name": "systemick-web-development.localhost",
+  "version": "1.0.0",
+  "description": "A nodejs server for the javascript version of the Systemick website",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "node",
+    "nodejs",
+    "systemick"
+  ],
+  "author": "Mike Garthwaite",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.9.2",
+    "expect.js": "^0.3.1",
+    "express": "^4.10.2",
+    "mocha": "^2.0.1",
+    "mongoskin": "^1.4.4",
+    "morgan": "^1.5.0",
+    "superagent": "^0.20.0",
+    "winston": "^0.8.3"
+  }
+}
