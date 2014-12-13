@@ -2,14 +2,18 @@ exports.getItems = function(req, res, next) {
   var collectionName = req.params.collection;
   var db = req.db;
 
-  db.collection(collectionName).find({},{limit:10, sort: [['_id',-1]]}).toArray(function(e, results){
+  db.collection(collectionName).find({},{limit:10, sort: [['weight',1]]}).toArray(function(e, results){
     if (e) {
-      console.inf('In error');
+      console.inf('Error retrieving items from collection ' + collectionName);
       return next(e);
     }
-    res.send(results)
+    if (req.query && req.query.callback) {
+      res.jsonp(results);
+    }
+    else {
+      res.send(results);
+    }
   });
-  console.info('collection = ' + collectionName);
 };
 
 exports.getItem = function(req, res, next) {
@@ -20,7 +24,7 @@ exports.getItem = function(req, res, next) {
     if (e) {
       return next(e);
     }
-    res.send(result);
+    res.status(200).send(result);
   });
 };
 
@@ -31,7 +35,7 @@ exports.addItem = function(req, res, next) {
     if (e) {
       return next(e);
     }
-    res.send(results);
+    res.status(201).send(results);
   });
 };
 
@@ -42,7 +46,7 @@ exports.updateItem = function(req, res, next) {
     if (e) {
       return next(e);
     }
-    res.send((result===1)?{msg:'success'}:{msg:'error'});
+    res.status((result===1) ? 200 : 401).send((result===1)?{msg:'success'}:{msg:'error'});
   });
 };
 
@@ -53,6 +57,68 @@ exports.deleteItem = function(req, res, next) {
     if (e) {
       return next(e);
     }
-    res.send((result===1)?{msg:'success'}:{msg:'error'});
+    res.status((result===1) ? 200 : 401).send((result===1)?{msg:'success'}:{msg:'error'});
   });
+};
+
+exports.getContact = function(req, res, next) {
+  var db = req.db;
+
+  db.collection('contact').find({},{limit:10}).toArray(function(e, results){
+    if (e) {
+      console.inf('Error retrieving items from collection contact');
+      return next(e);
+    }
+    if (req.query && req.query.callback) {
+      res.jsonp(results);
+    }
+    else {
+      res.send(results);
+    }
+  });
+}
+
+exports.getTweetsForUser = function(req, res, next) {
+  var SystemickTwitter = require('../modules/systemicktwitter');
+  var st = new SystemickTwitter();
+
+   st.getTweetsForUser(req, function(err, data) {
+    if (err) {
+      return next(err);
+    }
+
+    res.status(200).send(data);
+  });
+};
+
+exports.sendContactEmail = function(req, res, next) {
+  var nodemailer = require('nodemailer');
+  var config = require('../config');
+
+  var smtpTransport = nodemailer.createTransport({
+    "service": config.email_service,
+    "auth": {
+      "user": config.email_user,
+      "pass": config.email_pass
+    }
+  });
+
+  var mailOptions={
+    from : "contact@systemick.co.uk",
+    to : req.body.email,
+    subject : req.body.subject,
+    text : req.body.message
+  };
+
+  console.log(mailOptions);
+  smtpTransport.sendMail(mailOptions, function(error, response){
+    if(error){
+      console.log(error);
+      return next(error);
+    }else{
+      console.log("Message sent");
+      res.status(201).send();
+    }
+  });
+
 };

@@ -14,6 +14,8 @@ app.set('env', process.env.NODE_ENV || config.env || 'development');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+app.set("jsonp callback", true);
+
 // Development error handler
 // Will print stacktrace
 if (app.get('env') === 'development') {
@@ -50,9 +52,18 @@ if (!dbUrl) {
 }
 var db = mongoskin.db(dbUrl, { native_parser:true });
 var ObjectID = mongoskin.ObjectID;
+var twitterCache = {};
 app.use(function(req,res,next){
     req.db = db;
     req.objectID = ObjectID;
+    req.twitterCache = twitterCache;
+    next();
+});
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
 
@@ -63,11 +74,17 @@ app.get('/', function(req, res, next) {
 app.get('/api', function(req, res, next) {
   res.send('please select a collection, e.g., /api/skills');
 });
+app.get('/twitter', function(req, res, next) {
+  res.send('please select a collection, e.g., /api/skills');
+});
+//app.post('/login', routes.doLogin);
+app.get('/twitter/user/:screenName/:tweetCount', routes.getTweetsForUser);
 app.get('/api/:collection', routes.getItems);
 app.post('/api/:collection', routes.addItem);
 app.get('/api/:collection/:id', routes.getItem);
 app.put('/api/:collection/:id', routes.updateItem);
 app.delete('/api/:collection/:id', routes.deleteItem);
+app.post('/contact', routes.sendContactEmail);
 
 // Fallback to 404 if route not found
 app.get('*', function(req, res){
@@ -80,7 +97,7 @@ var server = http.createServer(app);
 var boot = function () {
   server.listen(app.get('port'), function(){
     console.info('Express server listening on port ' + app.get('port'));
-    console.info('Current envronment is ' + app.get('env'));
+    console.info('Current environment is ' + app.get('env'));
   });
 };
 var shutdown = function() {

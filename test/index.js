@@ -97,6 +97,16 @@ describe('server', function () {
       });
     });
 
+    it('retrieves tweets', function(done){
+      superagent.get('http://localhost:3000/twitter/user/systemick/2')
+      .end(function(e, res){
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(200);
+        expect(res.body.length).to.be.above(0);
+        done();
+      });
+    });
+
   });
 
   after(function () {
