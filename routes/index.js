@@ -103,11 +103,14 @@ exports.sendContactEmail = function(req, res, next) {
     }
   });
 
+  var body = '' + req.body.name + " sent an email using the contact form at js.systemick-web-development.co.uk\n\n";
+  body = body + 'Email address: ' + req.body.email + "\n\n";
+  body = body + req.body.message;
   var mailOptions={
     from : "contact@systemick.co.uk",
-    to : req.body.email,
+    to : "michaelgarthwaite@gmail.com",
     subject : req.body.subject,
-    text : req.body.message
+    text : body
   };
 
   console.log(mailOptions);
