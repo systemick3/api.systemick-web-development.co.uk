@@ -62,6 +62,7 @@ app.use(function(req,res,next){
 
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header("Access-Control-Allow-Methods", 'GET,PUT,POST,DELETE');
     res.header("Access-Control-Allow-Credentials", "true");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
@@ -79,12 +80,12 @@ app.get('/twitter', function(req, res, next) {
 });
 //app.post('/login', routes.doLogin);
 app.get('/twitter/user/:screenName/:tweetCount', routes.getTweetsForUser);
-app.get('/api/:collection', routes.getItems);
-app.post('/api/:collection', routes.addItem);
-app.get('/api/:collection/:id', routes.getItem);
-app.put('/api/:collection/:id', routes.updateItem);
-app.delete('/api/:collection/:id', routes.deleteItem);
-app.post('/contact', routes.sendContactEmail);
+app.get('/systemick/collection/:collection', routes.getItems);
+app.post('/systemick/collection/:collection', routes.addItem);
+app.get('/systemick/collection/:collection/:id', routes.getItem);
+app.put('/systemick/collection/:collection/:id', routes.updateItem);
+app.delete('/systemick/collection/:collection/:id', routes.deleteItem);
+app.post('/systemick/contact', routes.sendContactEmail);
 
 // Fallback to 404 if route not found
 app.get('*', function(req, res){
