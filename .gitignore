@@ -6,3 +6,8 @@ node_modules/*
 
 # Ignore log files
 logs/*
+
+# Bits & pieces
+email.txt
+notes.txt
+json/*
