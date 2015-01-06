@@ -2,7 +2,7 @@ exports.getItems = function(req, res, next) {
   var collectionName = req.params.collection;
   var db = req.db;
 
-  db.collection(collectionName).find({},{limit:10, sort: [['weight',1]]}).toArray(function(e, results){
+  db.collection(collectionName).find( {},{limit:10, sort: [['weight',1]]} ).toArray(function(e, results){
     if (e) {
       console.inf('Error retrieving items from collection ' + collectionName);
       return next(e);

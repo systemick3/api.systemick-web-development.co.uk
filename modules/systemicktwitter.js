@@ -12,10 +12,10 @@ SystemickTwitter.prototype = {
       cacheKey = USER_TIMELINE_URL + '/' + req.params.screenName + '/' + req.params.tweetCount,
       Twit = require('twit'),
       twitter = new Twit({
-        consumer_key:             config.twitter_consumer_key,
-        consumer_secret:        config.twitter_consumer_secret,
-        access_token:               config.twitter_access_token,
-        access_token_secret:    config.twitter_access_token_secret
+        consumer_key:             config.twitter.twitter_consumer_key,
+        consumer_secret:          config.twitter.twitter_consumer_secret,
+        access_token:             config.twitter.twitter_access_token,
+        access_token_secret:      config.twitter.twitter_access_token_secret
       }),
       oEmbedTweets = [], 
       tweets = [],
