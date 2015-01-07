@@ -23,66 +23,55 @@ UserAnalysis.prototype = {
         thirty: 'No data available',
         ninety: 'No data available'
       },
+      params,
       db = this.db,
       userId = this.userId,
-      getTweets = this.getTweets;
+      getTweetsSince = this.getTweetsSince;
 
     sevenDaysAgo.setDate(d.getDate() - 7);
     thirtyDaysAgo.setDate(d.getDate() - 30);
     ninetyDaysAgo.setDate(d.getDate() - 90);
 
-    this.getNinetyDays(function (err, result) {
+    params = {
+      userId: userId,
+      ts: ninetyDaysAgo.getTime()
+    };
+
+    getTweetsSince(db, params, function (err, tweets) {
       if (err) {
         callback(err);
       }
 
-      if (result) {
-        var params = {
-          userId: userId,
-          ts: ninetyDaysAgo.getTime()
-        };
+      var seven = 0, thirty = 0, ninety = 0;
+      for (var i=0; i<tweets.length; i++) {
+        if (tweets[i].ts > sevenDaysAgo.getTime()) {
+          seven++;
+        }
 
-        getTweets(db, params, function (err, tweets) {
-          if (err) {
-            callback(err);
-          }
+        if (tweets[i].ts > thirtyDaysAgo.getTime()) {
+          thirty++;
+        }
 
-          var seven = 0, thirty = 0, ninety = tweets.length;
-          for (var i=0; i<tweets.length; i++) {
-            if (tweets[i].ts > sevenDaysAgo.getTime()) {
-              seven++;
-            }
-
-            if (tweets[i].ts > thirtyDaysAgo.getTime()) {
-              thirty++;
-            }
-          }
-
-          analysis.seven = '' + seven + ' tweets';
-          analysis.thirty = '' + thirty + ' tweets';
-          analysis.ninety = '' + ninety + ' tweets';
-
-          callback(null, analysis);
-        });
+        if (tweets[i].ts > ninetyDaysAgo.getTime()) {
+          ninety++;
+        }
       }
+
+      if (seven > 0) {
+        analysis.seven = '' + seven + ' tweets';
+      }
+      if (thirty > 0) {
+        analysis.thirty = '' + thirty + ' tweets';
+      }
+      if (ninety > 0) {
+        analysis.ninety = '' + ninety + ' tweets';
+      }
+
+      callback(null, analysis);
     });
   },
 
-  getNinetyDays: function(callback) {
-    var d = new Date();
-    var ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(d.getDate() - 90);
-
-    this.db.collection('tweets').findOne({ user_id: this.userId, ts: { $lt: ninetyDaysAgo.getTime() } }, function (err, result) {
-      if (err) {
-        callback(err);
-      }
-
-      callback(null, result);
-    });
-  },
-
-  getTweets: function (db, params, callback) {
+  getTweetsSince: function (db, params, callback) {
     db.collection('tweets').find( { "user_id": params.userId, "ts": { $gt: params.ts } }, { sort:[['ts',-1]]} ).toArray(function(err, results) {
       if (err) {
         callback(err);
@@ -90,6 +79,37 @@ UserAnalysis.prototype = {
 
       callback(null, results);
     });
+  },
+
+  syncUserTweets: function (tweets, callback) {
+    var i,
+      j,
+      ids= [],
+      db_ids = [],
+      missing = [],
+      result = { msg: 'success' },
+      db = this.db;
+
+    for (i=0; i<tweets.length; i++) {
+
+      tweets[i].ts = new Date(tweets[i].created_at).getTime();
+      tweets[i].user_id = tweets[i].user.id_str;
+
+      (function (ix) {
+
+        db.collection('tweets').update({ "id": tweets[ix].id }, tweets[ix], { upsert: true }, function(err) {
+          if (err) {
+            callback(err);
+          }
+          //console.log('updating tweet ' + tweets[ix].id);
+        });
+
+      })(i);
+
+    }
+
+    callback(null, result);
+
   },
 
   // Utility function to insert tweets pulled

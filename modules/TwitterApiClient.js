@@ -92,6 +92,10 @@ TwitterApiClient.prototype = {
     });
   },
 
+  getUserTweetsForSync: function (params, callback) {
+    return this.get(URL_USER_TIMELINE, params, null, callback);
+  },
+
   post: function (callback) {
 
   }

@@ -41,43 +41,32 @@ exports.getUserAnalysis = function (req, res, next) {
     userId = req.params.userId,
     db = req.tweetappDb,
     UserAnalysis = require('../../modules/UserAnalysis'),
-    ua = new UserAnalysis(req.params.userId, db);
+    ua = new UserAnalysis(req.params.userId, db),
+    params = {
+      count: 200
+    };
 
-  db.collection('tweets').findOne({ user_id: userId }, function (err, result) {
+  client.getAllTweetsForUser(userId, function (err, data) {
     if (err) {
       return next(err);
     }
-        
-    if (result) {
-      res.status(200).send({ msg: 'success' });
-    }
-    else {
 
-      client.getAllTweetsForUser(req.params.userId, function (err, data) {
+    ua.syncUserTweets(data, function (err, result) {
+      if (err) {
+        return next(err);
+      }
+
+      ua.getAnalysis(function (err, analysis) {
         if (err) {
           return next(err);
         }
 
-        ua.insertTweets(data, function (err, result) {
-          if (err) {
-            return next(err);
-          }
-
-          //_getAnalysisUser (req.params.userId, db, function (err, analysis) {
-          ua.getAnalysis(function (err, analysis) {
-            if (err) {
-              return next(err);
-            }
-
-            var end = new Date().getTime();
-            var secs = end - start;
-            res.status(200).send({ msg: 'success', secs: secs, 'analysis': analysis });
-          });
-
-        });
+        var end = new Date().getTime();
+        var secs = end - start;
+        res.status(200).send({ msg: 'success', secs: secs, 'analysis': analysis });
       });
 
-    }
+    });
 
   });
 
