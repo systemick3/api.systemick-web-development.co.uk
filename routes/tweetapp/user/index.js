@@ -33,7 +33,7 @@ exports.twitterLogin = function (req, res, next) {
       res.redirect('https://twitter.com/oauth/authenticate?oauth_token=' + oauth_token)
     }
   });
-}
+};
 
 exports.twitterLoginCallback = function(req, res, next) {
   console.log('twitterLoginCallback');
@@ -91,7 +91,9 @@ exports.twitterLoginCallback = function(req, res, next) {
 
           var token = jwt.sign(profile, config.cookieSalt, { expiresInMinutes: 60*60*24 });
           profile.created = secs;
+          var original_token = profile.token;
           profile.token = token;
+          profile.original_token = original_token;
 
           db.collection("sessions").insert(profile, function(e, result) {
 
@@ -184,6 +186,7 @@ exports.userData = function (req, res, next) {
   var config = require('../../../config');
   var TwitterApiClient = require('../../../modules/TwitterApiClient');
   var client = new TwitterApiClient(config.tweetapp.twitter, req);
+  var db = req.tweetappDb;
   var params = {
     user_id: req.params.user_id
   };
@@ -193,7 +196,10 @@ exports.userData = function (req, res, next) {
       return next(err);
     }
 
-    res.status(200).send(data);
+    db.collection('users').update({ "id": req.params.user_id }, data, { upsert: true }, function(err) {
+      res.status(200).send(data);
+    });
+
   });
 };
 

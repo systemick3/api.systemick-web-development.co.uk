@@ -1,7 +1,10 @@
 var URL_USER_TIMELINE = 'statuses/user_timeline',
   URL_USER = 'users/show',
   URL_TWEET = 'statuses/show/:id',
-  MAX_USER_TWEETS = 200;
+  URL_RETWEETERS = 'statuses/retweeters/ids',
+  URL_USERS = 'users/lookup',
+  MAX_USER_TWEETS = 200,
+  MAX_RETWEETERS = 100;
 
 var TwitterApiClient = function (twitterConfig, req) {
   if (!twitterConfig) {
@@ -94,6 +97,19 @@ TwitterApiClient.prototype = {
 
   getUserTweetsForSync: function (params, callback) {
     return this.get(URL_USER_TIMELINE, params, null, callback);
+  },
+
+  getMentions: function (params, callback) {
+
+  },
+
+  getRetweeters: function (params, callback) {
+    // Can change quickly - do not cache
+    return this.get(URL_RETWEETERS, params, null, callback);
+  },
+
+  getUsers: function (params, callback) {
+    return this.get(URL_USERS, params, null, callback);
   },
 
   post: function (callback) {

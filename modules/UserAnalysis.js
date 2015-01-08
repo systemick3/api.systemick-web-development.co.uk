@@ -19,9 +19,21 @@ UserAnalysis.prototype = {
       thirtyDaysAgo = new Date(),
       ninetyDaysAgo = new Date(),
       analysis = {
-        seven: 'No data available',
-        thirty: 'No data available',
-        ninety: 'No data available'
+        seven: {
+          tweetCount: 0,
+          favouriteCount: 0,
+          retweetCount: 0
+        },
+        thirty: {
+          tweetCount: 0,
+          favouriteCount: 0,
+          retweetCount: 0
+        },
+        ninety: {
+          tweetCount: 0,
+          favouriteCount: 0,
+          retweetCount: 0
+        },
       },
       params,
       db = this.db,
@@ -45,26 +57,70 @@ UserAnalysis.prototype = {
       var seven = 0, thirty = 0, ninety = 0;
       for (var i=0; i<tweets.length; i++) {
         if (tweets[i].ts > sevenDaysAgo.getTime()) {
-          seven++;
+          analysis.seven.tweetCount++;
+          analysis.seven.favouriteCount += tweets[i].favorite_count;
+          analysis.seven.retweetCount += tweets[i].retweet_count;
         }
 
         if (tweets[i].ts > thirtyDaysAgo.getTime()) {
-          thirty++;
+          analysis.thirty.tweetCount++;
+          analysis.thirty.favouriteCount += tweets[i].favorite_count;
+          analysis.thirty.retweetCount += tweets[i].retweet_count;
         }
 
         if (tweets[i].ts > ninetyDaysAgo.getTime()) {
-          ninety++;
+          analysis.ninety.tweetCount++;
+          analysis.ninety.favouriteCount += tweets[i].favorite_count;
+          analysis.ninety.retweetCount += tweets[i].retweet_count;
         }
       }
 
-      if (seven > 0) {
-        analysis.seven = '' + seven + ' tweets';
+      callback(null, analysis);
+    });
+  },
+
+  getMentionsForAnalysis: function (callback) {
+    var d = new Date(),
+      sevenDaysAgo = new Date(),
+      thirtyDaysAgo = new Date(),
+      ninetyDaysAgo = new Date(),
+      analysis = {
+        seven: 0,
+        thirty: 0,
+        ninety: 0,
+      },
+      params,
+      db = this.db,
+      userId = this.userId,
+      getUserMentionsSince = this.getUserMentionsSince;
+
+    sevenDaysAgo.setDate(d.getDate() - 7);
+    thirtyDaysAgo.setDate(d.getDate() - 30);
+    ninetyDaysAgo.setDate(d.getDate() - 90);
+
+    params = {
+      userMentionedId: userId,
+      ts: ninetyDaysAgo.getTime()
+    };
+
+    getUserMentionsSince(db, params, function (err, mentions) {
+      if (err) {
+        callback(err);
       }
-      if (thirty > 0) {
-        analysis.thirty = '' + thirty + ' tweets';
-      }
-      if (ninety > 0) {
-        analysis.ninety = '' + ninety + ' tweets';
+
+      var seven = 0, thirty = 0, ninety = 0;
+      for (var i=0; i<mentions.length; i++) {
+        if (mentions[i].ts > sevenDaysAgo.getTime()) {
+          analysis.seven++;
+        }
+
+        if (mentions[i].ts > thirtyDaysAgo.getTime()) {
+          analysis.thirty++;
+        }
+
+        if (mentions[i].ts > ninetyDaysAgo.getTime()) {
+          analysis.ninety++;
+        }
       }
 
       callback(null, analysis);
@@ -81,12 +137,18 @@ UserAnalysis.prototype = {
     });
   },
 
+  getUserMentionsSince: function (db, params, callback) {
+    db.collection('mentions').find( { "user_mentioned_id": params.userMentionedId, "ts": { $gt: params.ts } }, { sort:[['ts',-1]]} ).toArray(function(err, results) {
+      if (err) {
+        callback(err);
+      }
+
+      callback(null, results);
+    });
+  },
+
   syncUserTweets: function (tweets, callback) {
     var i,
-      j,
-      ids= [],
-      db_ids = [],
-      missing = [],
       result = { msg: 'success' },
       db = this.db;
 
@@ -101,7 +163,33 @@ UserAnalysis.prototype = {
           if (err) {
             callback(err);
           }
-          //console.log('updating tweet ' + tweets[ix].id);
+        });
+
+      })(i);
+
+    }
+
+    callback(null, result);
+
+  },
+
+  syncUserMentions: function (mentions, userMentionedId, callback) {
+    var i,
+      result = { msg: 'success' },
+      db = this.db;
+
+    for (i=0; i<mentions.length; i++) {
+
+      mentions[i].ts = new Date(mentions[i].created_at).getTime();
+      mentions[i].user_id = mentions[i].user.id_str;
+      mentions[i].user_mentioned_id = userMentionedId;
+
+      (function (ix) {
+
+        db.collection('mentions').update({ "id": mentions[ix].id }, mentions[ix], { upsert: true }, function(err) {
+          if (err) {
+            callback(err);
+          }
         });
 
       })(i);
