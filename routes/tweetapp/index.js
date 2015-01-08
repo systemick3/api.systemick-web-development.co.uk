@@ -1,11 +1,12 @@
 // Get tweets for user
 exports.getTweetsForUser = function (req, res, next) {
-  var client = getClient(req);
-
-  var params = {
-    screen_name: req.params.screenName, // the user id passed in as part of the route
-    count: req.params.tweetCount // how many tweets to return
-  };
+  var client = getClient(req),
+    i,
+    db = req.tweetappDb,
+    params = {
+      screen_name: req.params.screenName, // the user id passed in as part of the route
+      count: req.params.tweetCount // how many tweets to return
+    };
 
   if (req.params.maxId) {
     params.max_id = req.params.maxId;
@@ -14,6 +15,17 @@ exports.getTweetsForUser = function (req, res, next) {
   client.getUserTimelineTweets(params, function (err, data) {
     if (err) {
       return next(err);
+    }
+
+    for (i=0; i<data.length; i++) {
+
+      (function (ix) {
+        db.collection('mentions').count({ 'in_reply_to_status_id_str': data[ix].id_str }, function (err, result) {
+          if (result > 0) {
+            data[ix].has_replies = true;
+          }
+        });
+      })(i);
     }
 
     res.status(200).send(data);
@@ -72,8 +84,27 @@ exports.getUserAnalysis = function (req, res, next) {
 
 };
 
+exports.getReplies = function (req, res, next) {
+  var start = new Date().getTime(),
+    end,
+    i,
+    secs,
+    replies = [],
+    userId = req.params.userId,
+    tweetId = req.params.tweetId,
+    db = req.tweetappDb,
+    UserAnalysis = require('../../modules/UserAnalysis'),
+    ua = new UserAnalysis(req.params.userId, db);
+
+  ua.getReplies(tweetId, replies, function (err, data) {
+    end = new Date().getTime();
+    secs = end - start;
+    res.status(200).send({ msg: 'success', secs: secs, replies: data} );
+  });
+};
+
 exports.getTweetAnalysis = function(req, res, next) {
-  
+
 };
 
 exports.getMentions = function (req, res, next) {

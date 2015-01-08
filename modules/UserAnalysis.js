@@ -215,6 +215,25 @@ UserAnalysis.prototype = {
 
   },
 
+  getReplies: function (tweetId, replies, callback) {
+    var db = this.db,
+      ua = this;
+
+    db.collection('mentions').findOne({ 'in_reply_to_status_id_str': tweetId }, function (err, result) {
+      if (err) {
+        callback(err);
+      }
+
+      if (!result) {
+        return callback(null, replies);
+      }
+      else {
+        replies.push(result);
+        return ua.getReplies(result.id_str, replies, callback);
+      }
+    });
+  },
+
   // Utility function to insert tweets pulled
   // from Twitter into database
   insertTweets: function (tweets, callback) {
