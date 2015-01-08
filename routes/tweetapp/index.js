@@ -213,9 +213,31 @@ exports.getUserMentions = function(req, res, next) {
   });
 };
 
+exports.getSentiment = function (req, res, next) {
+  var db = req.tweetappDb,
+    collection = 'tweets',
+    sentiment = require('sentiment');
+
+  // If the sentiment requested is a reply
+  // look for it in the mentions collection
+  if (req.params.isReply) {
+    collection = 'mentions';
+  }
+
+  db.collection(collection).findOne({ id_str: req.params.tweetId }, function (err, result) {
+    if (err) {
+      return next(err);
+    }
+
+    var sen = sentiment(result.text);
+
+    res.status(200).send({ msg: 'success', id: req.params.tweetId, sentiment: sen });
+  });
+};
+
 var getClient = function(req, config) {
-	var config;
-	var TwitterApiClient = require('../../modules/TwitterApiClient');
+	var config,
+    TwitterApiClient = require('../../modules/TwitterApiClient');
 
   if (!config) {
     config = require('../../config');

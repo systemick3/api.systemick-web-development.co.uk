@@ -118,6 +118,8 @@ app.get('/tweetapp/auth/analysis/tweet/:tweetId', tweetapp.getTweetAnalysis);
 app.get('/tweetapp/auth/tweet/retweeters/:tweetId', tweetapp.getRetweeters);
 app.get('/tweetapp/auth/tweet/mentions/:userId', tweetapp.getUserMentions);
 app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', tweetapp.getReplies);
+app.get('/tweetapp/auth/tweet/sentiment/:tweetId', tweetapp.getSentiment);
+app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', tweetapp.getSentiment);
 
 
 // app.get('/tweetapp/auth/stream', tweetapp.getStream);
