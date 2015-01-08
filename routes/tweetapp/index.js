@@ -83,8 +83,9 @@ exports.getMentions = function (req, res, next) {
 exports.getRetweeters = function (req, res, next) {
   var client = getClient(req),
     ids,
-    usernames = [],
-    range = 0;
+    retweeter,
+    retweeters = [],
+    reach = 0;
 
   var params = {
     id: req.params.tweetId,
@@ -109,11 +110,14 @@ exports.getRetweeters = function (req, res, next) {
         }
 
         for (var i=0; i<users.length; i++) {
-          usernames.push(users[i].screen_name);
-          range += users[i].followers_count;
+          retweeter = {};
+          retweeter.screen_name = users[i].screen_name;
+          retweeter.followers_count = users[i].followers_count;
+          retweeters.push(retweeter);
+          reach += users[i].followers_count;
         }
 
-        res.status(200).send({ msg: 'success', retweeters: usernames, range: range });
+        res.status(200).send({ msg: 'success', retweeters: retweeters, reach: reach });
       });
 
     }
