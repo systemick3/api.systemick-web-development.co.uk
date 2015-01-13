@@ -3,6 +3,7 @@ var URL_USER_TIMELINE = 'statuses/user_timeline',
   URL_TWEET = 'statuses/show/:id',
   URL_RETWEETERS = 'statuses/retweeters/ids',
   URL_USERS = 'users/lookup',
+  URL_TRENDS = 'trends/place',
   MAX_USER_TWEETS = 200,
   MAX_RETWEETERS = 100;
 
@@ -110,6 +111,10 @@ TwitterApiClient.prototype = {
 
   getUsers: function (params, callback) {
     return this.get(URL_USERS, params, null, callback);
+  },
+
+  getTrends: function (params, callback) {
+    return this.get(URL_TRENDS, params, null, callback);
   },
 
   post: function (callback) {

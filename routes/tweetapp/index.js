@@ -84,6 +84,24 @@ exports.getUserAnalysis = function (req, res, next) {
 
 };
 
+exports.getUserAnalyses = function (req, res, next) {
+  var start = new Date().getTime(),
+    userId = req.params.userId,
+    db = req.tweetappDb,
+    UserAnalysis = require('../../modules/UserAnalysis'),
+    ua = new UserAnalysis(req.params.userId, db);
+
+  ua.getAnalyses(function (err, analyses) {
+    if (err) {
+      return next(err);
+    }
+
+    var end = new Date().getTime();
+    var secs = end - start;
+    res.status(200).send({ msg: 'success', secs: secs, 'data': analyses });
+  });
+};
+
 exports.getReplies = function (req, res, next) {
   var start = new Date().getTime(),
     end,
@@ -210,6 +228,20 @@ exports.getUserMentions = function(req, res, next) {
 
     });
 
+  });
+};
+
+exports.getTrends = function (req, res, next) {
+  var client = getClient(req),
+    config = require('../../config');
+
+  var params = {
+    id: config.tweetapp.uk_woeid,
+  };
+
+  client.getTrends(params, function (err, data) {
+    console.log(data);
+    res.status(200).send({ msg: 'success', data: data })
   });
 };
 

@@ -2,7 +2,6 @@ var http = require('http'),
   path = require('path'),
   fs = require('fs'),
   express = require('express'),
-  //express = require('express.io'),
   mongoskin = require('mongoskin'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
@@ -113,11 +112,13 @@ app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount/:maxId', tweetapp.get
 app.get('/tweetapp/auth/tweet/one/:id', tweetapp.getTweet);
 
 app.get('/tweetapp/auth/analysis/user/:userId', tweetapp.getUserAnalysis);
+app.get('/tweetapp/auth/analysis/chart/:userId', tweetapp.getUserAnalyses);
 app.get('/tweetapp/auth/analysis/tweet/:tweetId', tweetapp.getTweetAnalysis);
 
 app.get('/tweetapp/auth/tweet/retweeters/:tweetId', tweetapp.getRetweeters);
 app.get('/tweetapp/auth/tweet/mentions/:userId', tweetapp.getUserMentions);
 app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', tweetapp.getReplies);
+app.get('/tweetapp/auth/tweet/trends', tweetapp.getTrends);
 app.get('/tweetapp/auth/tweet/sentiment/:tweetId', tweetapp.getSentiment);
 app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', tweetapp.getSentiment);
 
@@ -133,134 +134,16 @@ app.put('/systemick/collection/:collection/:id', routes.updateItem);
 app.delete('/systemick/collection/:collection/:id', routes.deleteItem);
 app.post('/systemick/contact', routes.sendContactEmail);
 
-//////////////////////////////////////////////////////////////////////////////
-
-// Create server
-var server = http.createServer(app);
-
-var io = require('socket.io').listen(server);
-
-// app.io.route('test-route', function(req) {
-//     // respond to the event
-// });
-
-//var tweetapp = require('./routes/tweetapp/index');
-//tweetapp(app, io);
-//console.log(tweetapp);
-
-//app.get('/mike/test', tweetapp.getStream);
-
 // Fallback to 404 if route not found
 app.get('*', function(req, res){
   res.sendStatus(404);
   res.end('Page not found');
 });
 
-// app.use(function(req, res, next) {
-//   req.io = io;
-//   next();
-// });
+//////////////////////////////////////////////////////////////////////////////
 
-/* TWITTER STREAM CODE
-var Twit = require('twit');
-var TWEETS_BUFFER_SIZE = 3;
- 
-var T = new Twit({
-    consumer_key:         config.twitter.twitter_consumer_key,
-    consumer_secret:      config.twitter.twitter_consumer_secret,
-    access_token:         config.twitter.twitter_access_token,
-    access_token_secret:  config.twitter.twitter_access_token_secret
-});
-
-var searchTerms = ['#php'];
-
-console.log("Listening for tweets from San Francisco...");
-var stream = T.stream('statuses/filter', { track: searchTerms });
-//var stream = T.stream('statuses/filter', { track: 'mango' });
-//var stream = T.stream('statuses/filter', { locations: [-122.75,36.8,-121.75,37.8] });
-var tweetsBuffer = [];
- 
-stream.on('connect', function(request) {
-    console.log('Connected to Twitter API');
-});
- 
-stream.on('disconnect', function(message) {
-    console.log('Disconnected from Twitter API. Message: ' + message);
-});
- 
-stream.on('reconnect', function (request, response, connectInterval) {
-  console.log('Trying to reconnect to Twitter API in ' + connectInterval + ' ms');
-})
- 
-stream.on('tweet', function(tweet) {
-  // if (tweet.geo == null) {
-  //     return ;
-  // }
-
-  //console.log(tweet);
-
-  //Create message containing tweet + username + profile pic + geo
-
-  var msg = {};
-  msg.text = tweet.text;
-  //msg.geo = tweet.geo.coordinates;
-  msg.created = tweet.created_at
-  msg.user = {
-      name: tweet.user.name,
-      screen_name: tweet.user.screen_name,
-      image: tweet.user.profile_image_url
-  };
- 
-  console.log(msg);
-
-  //push msg into buffer
-  tweetsBuffer.push(msg);
-
-  //send buffer only if full
-  if (tweetsBuffer.length >= TWEETS_BUFFER_SIZE) {
-      //broadcast tweets
-      io.sockets.emit('tweets', tweetsBuffer);
-      tweetsBuffer = [];
-  }
-
-});
-
-var nbOpenSockets = 0;
- 
-io.sockets.on('connection', function(socket) {
-    console.log('Client connected !');
-    console.log(socket.request._query);
-    var newTerm = '#' + socket.request._query.michael;
-
-    // This doesn't work
-    // Adding the new searchTerm doesn't cause tweets containing the new term
-    // to be fetched from Twitter.
-    if (searchTerms.indexOf(newTerm) < 0) {
-      searchTerms.push(newTerm);
-    }
-    
-    console.log(searchTerms);
-    if (nbOpenSockets <= 0) {
-        nbOpenSockets = 0;
-        console.log('First active client. Start streaming from Twitter');
-        stream.start();
-    }
- 
-    nbOpenSockets++;
- 
-    socket.on('disconnect', function() {
-        console.log('Client disconnected !');
-        nbOpenSockets--;
- 
-        if (nbOpenSockets <= 0) {
-            nbOpenSockets = 0;
-            console.log("No active client. Stop streaming from Twitter");
-            searchTerms = [];
-            stream.stop();
-        }
-    });
-});
-*/
+// Create server
+var server = http.createServer(app);
 
 var boot = function () {
   var s = server.listen(app.get('port'), function(){
@@ -280,5 +163,3 @@ else {
   exports.shutdown = shutdown;
   exports.port = app.get('port');
 }
-
-//exports.app = app;

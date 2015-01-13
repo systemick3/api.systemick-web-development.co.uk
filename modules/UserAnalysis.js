@@ -15,6 +15,9 @@ UserAnalysis.prototype = {
 
   getAnalysis: function (callback) {
     var d = new Date(),
+      today = d.toISOString(),
+      key = today.substring(0, 10),
+      db = this.db,
       sevenDaysAgo = new Date(),
       thirtyDaysAgo = new Date(),
       ninetyDaysAgo = new Date(),
@@ -90,12 +93,38 @@ UserAnalysis.prototype = {
         }
       }
 
-      callback(null, analysis);
+      analysis.user_id = userId;
+      analysis.created_at = d.getTime();
+      analysis.date = key;
+
+      db.collection('analysis').update({ "date": key, "user_id": userId }, analysis, { upsert: true }, function(err) {
+        if (err) {
+          callback(err);
+        }
+
+        callback(null, analysis);
+      });
+
+    });
+  },
+
+  getAnalyses: function (callback) {
+    var db = this.db,
+      userId = this.userId;
+
+    db.collection('analysis').find({ user_id: userId }, { sort:[['created_at',1]]}).toArray(function (err, results) {
+      if (err) {
+        callback(err);
+      }
+
+      callback(null, results);
     });
   },
 
   getMentionsForAnalysis: function (callback) {
     var d = new Date(),
+      today = d.toISOString(),
+      key = today.substring(0, 10),
       sevenDaysAgo = new Date(),
       thirtyDaysAgo = new Date(),
       ninetyDaysAgo = new Date(),
@@ -138,7 +167,14 @@ UserAnalysis.prototype = {
         }
       }
 
-      callback(null, analysis);
+      db.collection('analysis').update({ "date": key, "user_id": userId }, {"$set": { "seven.mentionsCount": analysis.seven } }, function(err) {
+        if (err) {
+          callback(err);
+        }
+
+        callback(null, analysis);
+      });
+
     });
   },
 
