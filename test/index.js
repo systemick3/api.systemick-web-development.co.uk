@@ -12,6 +12,7 @@ describe('server', function () {
 
   describe('homepage', function(){
     it('should respond to GET',function(done){
+      console.log('in homepage port is ' + port);
       superagent.get('http://localhost:'+port)
       .end(function(res){
         expect(res.status).to.equal(200);
@@ -22,9 +23,11 @@ describe('server', function () {
 
   describe('express rest api server', function(){
 
-    var id;
+    var id,
+      baseUrl = 'http://localhost:' + port;
+    console.log('port = ' + port);
     it('post object', function(done){
-      superagent.post('http://localhost:3000/api/test')
+      superagent.post(baseUrl + '/systemick/collection/skills')
       .send({ 
         name: 'John',
         email: 'john@rpjs.co'
@@ -34,12 +37,13 @@ describe('server', function () {
         expect(res.body.length).to.eql(1);
         expect(res.body[0]._id.length).to.eql(24);
         id = res.body[0]._id;
+        console.log('id = ' + id);
         done();
       });
     });
  
     it('retrieves an object', function(done){
-      superagent.get('http://localhost:3000/api/test/'+id)
+      superagent.get(baseUrl + '/systemick/collection/skills/'+id)
       .end(function(e, res){
         expect(e).to.eql(null);
         expect(typeof res.body).to.eql('object');
@@ -50,7 +54,7 @@ describe('server', function () {
     });
  
     it('retrieves a collection', function(done){
-      superagent.get('http://localhost:3000/api/test')
+      superagent.get(baseUrl + '/systemick/collection/skills')
       .end(function(e, res){
         expect(e).to.eql(null);
         expect(res.body.length).to.be.above(0);
@@ -62,7 +66,7 @@ describe('server', function () {
     });
 
     it('updates an object', function(done){
-      superagent.put('http://localhost:3000/api/test/'+id)
+      superagent.put(baseUrl + '/systemick/collection/skills/'+id)
       .send({
         name: 'Peter',
         email: 'peter@yahoo.com'
@@ -76,7 +80,7 @@ describe('server', function () {
     });
  
     it('checks an updated object', function(done){
-      superagent.get('http://localhost:3000/api/test/'+id)
+      superagent.get(baseUrl + '/systemick/collection/skills/'+id)
       .end(function(e, res){
         expect(e).to.eql(null);
         expect(typeof res.body).to.eql('object');
@@ -88,7 +92,7 @@ describe('server', function () {
     });
  
     it('removes an object', function(done){
-      superagent.del('http://localhost:3000/api/test/'+id)
+      superagent.del(baseUrl + '/systemick/collection/skills/'+id)
       .end(function(e, res){
         expect(e).to.eql(null);
         expect(typeof res.body).to.eql('object');
@@ -98,7 +102,7 @@ describe('server', function () {
     });
 
     it('retrieves tweets', function(done){
-      superagent.get('http://localhost:3000/twitter/user/systemick/2')
+      superagent.get(baseUrl + '/twitter/user/systemick/2')
       .end(function(e, res){
         expect(e).to.eql(null);
         expect(res.status).to.eql(200);

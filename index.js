@@ -6,8 +6,6 @@ var http = require('http'),
   bodyParser = require('body-parser'),
   morgan = require('morgan'),
   routes = require('./routes'),
-  user = require('./routes/tweetapp/user'),
-  tweetapp = require('./routes/tweetapp'),
   config = require('./config'),
   expressJwt = require('express-jwt'),
   jwt = require('jsonwebtoken'),
@@ -88,51 +86,18 @@ app.use(function(req, res, next) {
 
 //////////////////////////////// ROUTES /////////////////////////////////////
 
+routes.attachHandlers(app);
+
 // Default routes
-// app.get('/', function(req, res, next) {
-//   res.send('please select a collection, e.g., /api/skills');
-// });
+app.get('/', function(req, res, next) {
+  res.send('please select a collection, e.g., /api/skills');
+});
 app.get('/api', function(req, res, next) {
   res.send('please select a collection, e.g., /api/skills');
 });
 app.get('/twitter', function(req, res, next) {
   res.send('please select a collection, e.g., /api/skills');
 });
-
-// Tweetapp routes
-app.get('/tweetapp/test', user.testUser);
-//app.post('/tweetapp/login', user.login);
-app.post('/tweetapp/login/twitter', user.twitterLogin);
-app.get('/tweetapp/login/twitter/callback', user.twitterLoginCallback);
-app.get('/tweetapp/auth/session', user.sessionData);
-app.get('/tweetapp/auth/user/:user_id', user.userData);
-
-app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount', tweetapp.getTweetsForUser);
-app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount/:maxId', tweetapp.getTweetsForUser);
-app.get('/tweetapp/auth/tweet/one/:id', tweetapp.getTweet);
-
-app.get('/tweetapp/auth/analysis/user/:userId', tweetapp.getUserAnalysis);
-app.get('/tweetapp/auth/analysis/chart/:userId', tweetapp.getUserAnalyses);
-app.get('/tweetapp/auth/analysis/tweet/:tweetId', tweetapp.getTweetAnalysis);
-
-app.get('/tweetapp/auth/tweet/retweeters/:tweetId', tweetapp.getRetweeters);
-app.get('/tweetapp/auth/tweet/mentions/:userId', tweetapp.getUserMentions);
-app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', tweetapp.getReplies);
-app.get('/tweetapp/auth/tweet/trends', tweetapp.getTrends);
-app.get('/tweetapp/auth/tweet/sentiment/:tweetId', tweetapp.getSentiment);
-app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', tweetapp.getSentiment);
-
-
-// app.get('/tweetapp/auth/stream', tweetapp.getStream);
-
-// Systemick routes
-app.get('/twitter/user/:screenName/:tweetCount', routes.getTweetsForUser);
-app.get('/systemick/collection/:collection', routes.getItems);
-app.post('/systemick/collection/:collection', routes.addItem);
-app.get('/systemick/collection/:collection/:id', routes.getItem);
-app.put('/systemick/collection/:collection/:id', routes.updateItem);
-app.delete('/systemick/collection/:collection/:id', routes.deleteItem);
-app.post('/systemick/contact', routes.sendContactEmail);
 
 // Fallback to 404 if route not found
 app.get('*', function(req, res){
@@ -162,4 +127,5 @@ else {
   exports.boot = boot;
   exports.shutdown = shutdown;
   exports.port = app.get('port');
+  console.log('port is ' + app.get('port'));
 }

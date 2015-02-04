@@ -1,5 +1,21 @@
+module.exports = function attachHandlers (app) {
+
+  // Tweetapp routes
+  app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount', getTweetsForUser);
+  app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount/:maxId', getTweetsForUser);
+  app.get('/tweetapp/auth/tweet/one/:id', getTweet);
+  app.get('/tweetapp/auth/analysis/user/:userId', getUserAnalysis);
+  app.get('/tweetapp/auth/analysis/chart/:userId', getUserAnalyses);
+  app.get('/tweetapp/auth/tweet/retweeters/:tweetId', getRetweeters);
+  app.get('/tweetapp/auth/tweet/mentions/:userId', getUserMentions);
+  app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', getReplies);
+  app.get('/tweetapp/auth/tweet/trends', getTrends);
+  app.get('/tweetapp/auth/tweet/sentiment/:tweetId', getSentiment);
+  app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', getSentiment);
+};
+
 // Get tweets for user
-exports.getTweetsForUser = function (req, res, next) {
+var getTweetsForUser = function (req, res, next) {
   var client = getClient(req),
     i,
     db = req.tweetappDb,
@@ -32,7 +48,7 @@ exports.getTweetsForUser = function (req, res, next) {
   });
 };
 
-exports.getTweet = function (req, res, next) {
+var getTweet = function (req, res, next) {
   var client = getClient(req);
   var params = {
     id: req.params.id // the id of the tweet
@@ -47,12 +63,12 @@ exports.getTweet = function (req, res, next) {
   });
 };
 
-exports.getUserAnalysis = function (req, res, next) {
+var getUserAnalysis = function (req, res, next) {
   var start = new Date().getTime(),
     client = getClient(req),
     userId = req.params.userId,
     db = req.tweetappDb,
-    UserAnalysis = require('../../modules/UserAnalysis'),
+    UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db),
     params = {
       count: 200
@@ -84,11 +100,11 @@ exports.getUserAnalysis = function (req, res, next) {
 
 };
 
-exports.getUserAnalyses = function (req, res, next) {
+var getUserAnalyses = function (req, res, next) {
   var start = new Date().getTime(),
     userId = req.params.userId,
     db = req.tweetappDb,
-    UserAnalysis = require('../../modules/UserAnalysis'),
+    UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db);
 
   ua.getAnalyses(function (err, analyses) {
@@ -102,7 +118,7 @@ exports.getUserAnalyses = function (req, res, next) {
   });
 };
 
-exports.getReplies = function (req, res, next) {
+var getReplies = function (req, res, next) {
   var start = new Date().getTime(),
     end,
     i,
@@ -111,7 +127,7 @@ exports.getReplies = function (req, res, next) {
     userId = req.params.userId,
     tweetId = req.params.tweetId,
     db = req.tweetappDb,
-    UserAnalysis = require('../../modules/UserAnalysis'),
+    UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db);
 
   ua.getReplies(tweetId, replies, function (err, data) {
@@ -121,15 +137,7 @@ exports.getReplies = function (req, res, next) {
   });
 };
 
-exports.getTweetAnalysis = function(req, res, next) {
-
-};
-
-exports.getMentions = function (req, res, next) {
-
-};
-
-exports.getRetweeters = function (req, res, next) {
+var getRetweeters = function (req, res, next) {
   var client = getClient(req),
     ids,
     retweeter,
@@ -138,7 +146,6 @@ exports.getRetweeters = function (req, res, next) {
 
   var params = {
     id: req.params.tweetId,
-    //count: 100
   };
 
   client.getRetweeters(params, function (err, data) {
@@ -177,9 +184,9 @@ exports.getRetweeters = function (req, res, next) {
   });
 };
 
-exports.getUserMentions = function(req, res, next) {
+var getUserMentions = function(req, res, next) {
   var start = new Date().getTime(),
-    config = require('../../config'),
+    config = require('../config'),
     db = req.tweetappDb,
     userId = req.params.userId,
     Twit = require('twit'),
@@ -187,7 +194,7 @@ exports.getUserMentions = function(req, res, next) {
     twitterConfig,
     params = { count: 200 },
     path = 'statuses/mentions_timeline',
-    UserAnalysis = require('../../modules/UserAnalysis'),
+    UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db);
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
@@ -231,9 +238,9 @@ exports.getUserMentions = function(req, res, next) {
   });
 };
 
-exports.getTrends = function (req, res, next) {
+var getTrends = function (req, res, next) {
   var client = getClient(req),
-    config = require('../../config');
+    config = require('../config');
 
   var params = {
     id: config.tweetapp.uk_woeid,
@@ -245,7 +252,7 @@ exports.getTrends = function (req, res, next) {
   });
 };
 
-exports.getSentiment = function (req, res, next) {
+var getSentiment = function (req, res, next) {
   var db = req.tweetappDb,
     collection = 'tweets',
     sentiment = require('sentiment');
@@ -269,85 +276,11 @@ exports.getSentiment = function (req, res, next) {
 
 var getClient = function(req, config) {
 	var config,
-    TwitterApiClient = require('../../modules/TwitterApiClient');
+    TwitterApiClient = require('../modules/TwitterApiClient');
 
   if (!config) {
-    config = require('../../config');
+    config = require('../config');
   }
 
 	return new TwitterApiClient(config.tweetapp.twitter, req);
 };
-
-/*module.exports = function(app, io){
-	//console.log('TWEETAPP');
-  app.get('/tweetapp/auth/test', function(req, res){
-    
-    //I would like here be able to send to all clients in room "test"
-    //io.to('test').emit('some event');
-
-	  var config = require('../../config');
-
-	  var Twit = require('twit');
-		var TWEETS_BUFFER_SIZE = 3;
-		 
-		var T = new Twit({
-		    consumer_key:         config.twitter.twitter_consumer_key,
-		    consumer_secret:      config.twitter.twitter_consumer_secret,
-		    access_token:         config.twitter.twitter_access_token,
-		    access_token_secret:  config.twitter.twitter_access_token_secret
-		});
-
-		console.log("Listening for tweets from San Francisco...");
-		//var stream = T.stream('statuses/filter', { track: ['#javascript'] });
-		//var stream = T.stream('statuses/filter', { track: 'mango' });
-		var stream = T.stream('statuses/filter', { locations: [-122.75,36.8,-121.75,37.8] });
-		var tweetsBuffer = [];
-		 
-		stream.on('connect', function(request) {
-		    console.log('Connected to Twitter API');
-		});
-		 
-		stream.on('disconnect', function(message) {
-		    console.log('Disconnected from Twitter API. Message: ' + message);
-		});
-		 
-		stream.on('reconnect', function (request, response, connectInterval) {
-		  console.log('Trying to reconnect to Twitter API in ' + connectInterval + ' ms');
-		});
- 
-		stream.on('tweet', function(tweet) {
-		  // if (tweet.geo == null) {
-		  //     return ;
-		  // }
-
-		  //console.log(tweet);
-
-		  //Create message containing tweet + username + profile pic + geo
-
-		  var msg = {};
-		  msg.text = tweet.text;
-		  //msg.geo = tweet.geo.coordinates;
-		  msg.created = tweet.created_at
-		  msg.user = {
-		      name: tweet.user.name,
-		      screen_name: tweet.user.screen_name,
-		      image: tweet.user.profile_image_url
-		  };
-		 
-		  console.log(msg);
-
-		  //push msg into buffer
-		  tweetsBuffer.push(msg);
-
-		  //send buffer only if full
-		  if (tweetsBuffer.length >= TWEETS_BUFFER_SIZE) {
-		      //broadcast tweets
-		      io.sockets.emit('tweets', tweetsBuffer);
-		      tweetsBuffer = [];
-		  }
-
-		});
-
-    //res.send({msg:'Hello World'});
-  });
-};*/

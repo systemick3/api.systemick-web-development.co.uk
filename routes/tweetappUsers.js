@@ -1,13 +1,23 @@
-exports.testUser = function (req, res, next) {
-	var config = require('../../../config');
+module.exports = function attachHandlers (app) {
+
+  app.get('/tweetapp/test', testUser);
+  //app.post('/tweetapp/login', login);
+  app.post('/tweetapp/login/twitter', twitterLogin);
+  app.get('/tweetapp/login/twitter/callback', twitterLoginCallback);
+  app.get('/tweetapp/auth/session', sessionData);
+  app.get('/tweetapp/auth/user/:user_id', userData);
+};
+
+var testUser = function (req, res, next) {
+	var config = require('../config');
 
 	var bcrypt = require('bcrypt');
 	var hash = bcrypt.hashSync('123456789', config.pwSalt);
 	res.send({ message:"Hello world " });
 }
 
-exports.twitterLogin = function (req, res, next) {
-	var config = require('../../../config');
+var twitterLogin = function (req, res, next) {
+	var config = require('../config');
 	var OAuth = require('oauth').OAuth
   , oauth = new OAuth(
       "https://api.twitter.com/oauth/request_token",
@@ -35,12 +45,10 @@ exports.twitterLogin = function (req, res, next) {
   });
 };
 
-exports.twitterLoginCallback = function(req, res, next) {
-  console.log('twitterLoginCallback');
-
+var twitterLoginCallback = function(req, res, next) {
   var bcrypt = require('bcrypt');
 
-	var config = require('../../../config');
+	var config = require('../config');
 	var OAuth = require('oauth').OAuth
   , oauth = new OAuth(
       "https://api.twitter.com/oauth/request_token",
@@ -115,7 +123,7 @@ exports.twitterLoginCallback = function(req, res, next) {
 
 };
 
-/*exports.login = function(req, res, next) {
+/*var login = function(req, res, next) {
 	var config = require('../../../config');
 	var bcrypt = require('bcrypt');
 	var db = req.tweetappDb;
@@ -168,7 +176,7 @@ exports.twitterLoginCallback = function(req, res, next) {
   });
 };*/
 
-exports.sessionData = function(req, res, next) {
+var sessionData = function(req, res, next) {
   var collectionName = 'sessions';
   var db = req.tweetappDb;
   var s = req.headers.authorization;
@@ -182,14 +190,16 @@ exports.sessionData = function(req, res, next) {
   });
 };
 
-exports.userData = function (req, res, next) {
-  var config = require('../../../config');
-  var TwitterApiClient = require('../../../modules/TwitterApiClient');
+var userData = function (req, res, next) {
+  var config = require('../config');
+  var TwitterApiClient = require('../modules/TwitterApiClient');
   var client = new TwitterApiClient(config.tweetapp.twitter, req);
   var db = req.tweetappDb;
   var params = {
     user_id: req.params.user_id
   };
+
+  console.log('Updating user collection');
 
   client.getUserData(params, function(err, data) {
     if (err) {
@@ -201,8 +211,4 @@ exports.userData = function (req, res, next) {
     });
 
   });
-};
-
-var createUserSession = function(db, config, username) {
-  
 };
