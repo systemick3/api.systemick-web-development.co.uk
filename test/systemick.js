@@ -4,7 +4,7 @@ var boot = require('../index').boot,
   superagent = require('superagent'),
   expect = require('expect.js');
 
-describe('server', function () {
+describe('systemick', function () {
 
   before(function () {
     boot();
@@ -25,8 +25,8 @@ describe('server', function () {
 
     var id,
       baseUrl = 'http://localhost:' + port;
-    console.log('port = ' + port);
-    it('post object', function(done){
+
+    it('posts an object', function(done){
       superagent.post(baseUrl + '/systemick/collection/skills')
       .send({ 
         name: 'John',

@@ -182,11 +182,12 @@ var sessionData = function(req, res, next) {
   var s = req.headers.authorization;
   var token = s.substring(7);
 
-  db.collection(collectionName).findOne({token: token}, {user_id:1, screen_name:1}, function(e, result){
+  db.collection(collectionName).find({token: token}, {user_id:1, screen_name:1}).sort({"created" : -1}).limit(1).toArray(function(e, results){
     if (e) {
       return next(e);
     }
-    res.status(200).send(result);
+    console.log(results);
+    res.status(200).send(results[0]);
   });
 };
 
