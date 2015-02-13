@@ -71,7 +71,7 @@ var twitterLoginCallback = function(req, res, next) {
       function(error, oauth_access_token, oauth_access_token_secret, results) {
         if (error) {
           console.log(error);
-          res.redirect('http://twitterapp.localhost/#/login/callback');
+          res.redirect(config.tweetapp.client + '/#/login/callback');
         }
         else {
           req.session.oauth.access_token = oauth_access_token;
@@ -107,10 +107,10 @@ var twitterLoginCallback = function(req, res, next) {
 
             if (e) {
               console.log(e);
-              res.redirect('http://twitterapp.localhost/#/login/callback');
+              res.redirect(config.tweetapp.client + '/#/login/callback');
             }
 
-            res.redirect('http://twitterapp.localhost/#/login/callback/' + token);
+            res.redirect(config.tweetapp.client + '/#/login/callback/' + token);
           });
 
         }
