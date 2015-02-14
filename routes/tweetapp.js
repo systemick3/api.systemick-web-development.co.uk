@@ -1,17 +1,14 @@
-module.exports = function attachHandlers (app) {
+// Routes for tweetapp
 
-  // Tweetapp routes
-  app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount', getTweetsForUser);
-  app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount/:maxId', getTweetsForUser);
-  app.get('/tweetapp/auth/tweet/one/:id', getTweet);
-  app.get('/tweetapp/auth/analysis/user/:userId', getUserAnalysis);
-  app.get('/tweetapp/auth/analysis/chart/:userId', getUserAnalyses);
-  app.get('/tweetapp/auth/tweet/retweeters/:tweetId', getRetweeters);
-  app.get('/tweetapp/auth/tweet/mentions/:userId', getUserMentions);
-  app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', getReplies);
-  app.get('/tweetapp/auth/tweet/trends', getTrends);
-  app.get('/tweetapp/auth/tweet/sentiment/:tweetId', getSentiment);
-  app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', getSentiment);
+// Utility function to instantiate a twitter API client
+var getClient = function (req, config) {
+  var TwitterApiClient = require('../modules/TwitterApiClient');
+
+  if (!config) {
+    config = require('../config');
+  }
+
+  return new TwitterApiClient(config.tweetapp.twitter, req);
 };
 
 // Get tweets for user
@@ -33,15 +30,20 @@ var getTweetsForUser = function (req, res, next) {
       return next(err);
     }
 
-    for (i=0; i<data.length; i++) {
+    for (i = 0; i < data.length; i++) {
 
       (function (ix) {
         db.collection('mentions').count({ 'in_reply_to_status_id_str': data[ix].id_str }, function (err, result) {
+          if (err) {
+            return next(err);
+          }
+
           if (result > 0) {
             data[ix].has_replies = true;
           }
         });
       })(i);
+
     }
 
     res.status(200).send(data);
@@ -69,17 +71,14 @@ var getUserAnalysis = function (req, res, next) {
     userId = req.params.userId,
     db = req.tweetappDb,
     UserAnalysis = require('../modules/UserAnalysis'),
-    ua = new UserAnalysis(req.params.userId, db),
-    params = {
-      count: 200
-    };
+    ua = new UserAnalysis(req.params.userId, db);
 
   client.getAllTweetsForUser(userId, function (err, data) {
     if (err) {
       return next(err);
     }
 
-    ua.syncUserTweets(data, function (err, result) {
+    ua.syncUserTweets(data, function (err) {
       if (err) {
         return next(err);
       }
@@ -102,7 +101,6 @@ var getUserAnalysis = function (req, res, next) {
 
 var getUserAnalyses = function (req, res, next) {
   var start = new Date().getTime(),
-    userId = req.params.userId,
     db = req.tweetappDb,
     UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db);
@@ -121,25 +119,28 @@ var getUserAnalyses = function (req, res, next) {
 var getReplies = function (req, res, next) {
   var start = new Date().getTime(),
     end,
-    i,
     secs,
     replies = [],
-    userId = req.params.userId,
     tweetId = req.params.tweetId,
     db = req.tweetappDb,
     UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db);
 
   ua.getReplies(tweetId, replies, function (err, data) {
+    if (err) {
+      return next(err);
+    }
+
     end = new Date().getTime();
     secs = end - start;
-    res.status(200).send({ msg: 'success', secs: secs, replies: data} );
+    res.status(200).send({ msg: 'success', secs: secs, replies: data});
   });
 };
 
 var getRetweeters = function (req, res, next) {
   var client = getClient(req),
     ids,
+    i,
     retweeter,
     retweeters = [],
     reach = 0;
@@ -165,7 +166,7 @@ var getRetweeters = function (req, res, next) {
           return next(err);
         }
 
-        for (var i=0; i<users.length; i++) {
+        for (i = 0; i < users.length; i++) {
           retweeter = {};
           retweeter.screen_name = users[i].screen_name;
           retweeter.followers_count = users[i].followers_count;
@@ -178,13 +179,13 @@ var getRetweeters = function (req, res, next) {
 
     }
     else {
-      res.status(404).send()
+      res.status(404).send();
     }
 
   });
 };
 
-var getUserMentions = function(req, res, next) {
+var getUserMentions = function (req, res, next) {
   var start = new Date().getTime(),
     config = require('../config'),
     db = req.tweetappDb,
@@ -211,12 +212,12 @@ var getUserMentions = function(req, res, next) {
 
     T = new Twit(twitterConfig);
 
-    T.get(path, params, function (err, data, resp) {
+    T.get(path, params, function (err, data) {
       if (err) {
         return next(err);
       }
 
-      ua.syncUserMentions(data, userId, function (err, result) {
+      ua.syncUserMentions(data, userId, function (err) {
         if (err) {
           return next(err);
         }
@@ -247,8 +248,11 @@ var getTrends = function (req, res, next) {
   };
 
   client.getTrends(params, function (err, data) {
-    console.log(data);
-    res.status(200).send({ msg: 'success', data: data })
+    if (err) {
+      return next(err);
+    }
+
+    res.status(200).send({ msg: 'success', data: data });
   });
 };
 
@@ -274,13 +278,18 @@ var getSentiment = function (req, res, next) {
   });
 };
 
-var getClient = function(req, config) {
-	var config,
-    TwitterApiClient = require('../modules/TwitterApiClient');
+module.exports = function attachHandlers(app) {
 
-  if (!config) {
-    config = require('../config');
-  }
-
-	return new TwitterApiClient(config.tweetapp.twitter, req);
+  // Tweetapp routes
+  app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount', getTweetsForUser);
+  app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount/:maxId', getTweetsForUser);
+  app.get('/tweetapp/auth/tweet/one/:id', getTweet);
+  app.get('/tweetapp/auth/analysis/user/:userId', getUserAnalysis);
+  app.get('/tweetapp/auth/analysis/chart/:userId', getUserAnalyses);
+  app.get('/tweetapp/auth/tweet/retweeters/:tweetId', getRetweeters);
+  app.get('/tweetapp/auth/tweet/mentions/:userId', getUserMentions);
+  app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', getReplies);
+  app.get('/tweetapp/auth/tweet/trends', getTrends);
+  app.get('/tweetapp/auth/tweet/sentiment/:tweetId', getSentiment);
+  app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', getSentiment);
 };
