@@ -65,7 +65,10 @@ UserAnalysis.prototype = {
         if (tweets[i].ts > sevenDaysAgo.getTime()) {
           analysis.seven.tweetCount++;
           analysis.seven.favouriteCount += tweets[i].favorite_count;
-          analysis.seven.retweetCount += tweets[i].retweet_count;
+
+          if (!tweets[i].retweeted_status) {
+            analysis.seven.retweetCount += tweets[i].retweet_count;
+          }
 
           if (tweets[i].retweeted) {
             analysis.seven.tweetsRetweetedCount++;
@@ -75,7 +78,10 @@ UserAnalysis.prototype = {
         if (tweets[i].ts > thirtyDaysAgo.getTime()) {
           analysis.thirty.tweetCount++;
           analysis.thirty.favouriteCount += tweets[i].favorite_count;
-          analysis.thirty.retweetCount += tweets[i].retweet_count;
+
+          if (!tweets[i].retweeted_status) {
+            analysis.thirty.retweetCount += tweets[i].retweet_count;
+          }
 
           if (tweets[i].retweeted) {
             analysis.thirty.tweetsRetweetedCount++;
@@ -85,7 +91,10 @@ UserAnalysis.prototype = {
         if (tweets[i].ts > ninetyDaysAgo.getTime()) {
           analysis.ninety.tweetCount++;
           analysis.ninety.favouriteCount += tweets[i].favorite_count;
-          analysis.ninety.retweetCount += tweets[i].retweet_count;
+
+          if (!tweets[i].retweeted_status) {
+            analysis.ninety.retweetCount += tweets[i].retweet_count;
+          }
 
           if (tweets[i].retweeted) {
             analysis.ninety.tweetsRetweetedCount++;
