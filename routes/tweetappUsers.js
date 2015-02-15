@@ -190,7 +190,7 @@ var userData = function (req, res, next) {
       return next(err);
     }
 
-    db.collection('users').update({ "id": req.params.user_id }, data, { upsert: true }, function(err) {
+    db.collection('users').update({ "id_str": req.params.user_id }, data, { upsert: true }, function(err) {
       res.status(200).send(data);
     });
 
