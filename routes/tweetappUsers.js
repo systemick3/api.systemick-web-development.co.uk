@@ -1,25 +1,9 @@
-module.exports = function attachHandlers (app) {
-
-  app.get('/tweetapp/test', testUser);
-  //app.post('/tweetapp/login', login);
-  app.post('/tweetapp/login/twitter', twitterLogin);
-  app.get('/tweetapp/login/twitter/callback', twitterLoginCallback);
-  app.get('/tweetapp/auth/session', sessionData);
-  app.get('/tweetapp/auth/user/:user_id', userData);
-};
-
-var testUser = function (req, res, next) {
-	var config = require('../config');
-
-	var bcrypt = require('bcrypt');
-	var hash = bcrypt.hashSync('123456789', config.pwSalt);
-	res.send({ message:"Hello world " });
-}
+// Toutes for tweetapp users
 
 var twitterLogin = function (req, res, next) {
-	var config = require('../config');
-	var OAuth = require('oauth').OAuth
-  , oauth = new OAuth(
+  var config = require('../config'),
+    OAuth = require('oauth').OAuth,
+    oauth = new OAuth(
       "https://api.twitter.com/oauth/request_token",
       "https://api.twitter.com/oauth/access_token",
       config.tweetapp.twitter.consumer_key,
@@ -39,18 +23,17 @@ var twitterLogin = function (req, res, next) {
         token: oauth_token,
         token_secret: oauth_token_secret
       };
-      
-      res.redirect('https://twitter.com/oauth/authenticate?oauth_token=' + oauth_token)
+
+      res.redirect('https://twitter.com/oauth/authenticate?oauth_token=' + oauth_token);
     }
   });
 };
 
-var twitterLoginCallback = function(req, res, next) {
-  var bcrypt = require('bcrypt');
-
-	var config = require('../config');
-	var OAuth = require('oauth').OAuth
-  , oauth = new OAuth(
+var twitterLoginCallback = function (req, res, next) {
+  var bcrypt = require('bcrypt'),
+    config = require('../config'),
+    OAuth = require('oauth').OAuth,
+    oauth = new OAuth(
       "https://api.twitter.com/oauth/request_token",
       "https://api.twitter.com/oauth/access_token",
       config.tweetapp.twitter.consumer_key,
@@ -60,15 +43,15 @@ var twitterLoginCallback = function(req, res, next) {
       "HMAC-SHA1"
     );
 
-	if (req.session.oauth) {
+  if (req.session.oauth) {
     req.session.oauth.verifier = req.query.oauth_verifier;
     var oauth_data = req.session.oauth;
- 
+
     oauth.getOAuthAccessToken(
       oauth_data.token,
       oauth_data.token_secret,
       oauth_data.verifier,
-      function(error, oauth_access_token, oauth_access_token_secret, results) {
+      function (error, oauth_access_token, oauth_access_token_secret, results) {
         if (error) {
           console.log(error);
           res.redirect(config.tweetapp.client + '/#/login/callback');
@@ -77,13 +60,15 @@ var twitterLoginCallback = function(req, res, next) {
           req.session.oauth.access_token = oauth_access_token;
           req.session.oauth.access_token_secret = oauth_access_token_secret;
 
-          var db = req.tweetappDb;
-          var jwt = req.jwt;
-          var d = new Date();
-          var secs = d.getTime();
-          var str = 'twitterlogin' + secs;
-          var hash = bcrypt.hashSync(secs.toString(), config.cookieSalt);
-          var profile = {};
+          var db = req.tweetappDb,
+            jwt = req.jwt,
+            d = new Date(),
+            secs = d.getTime(),
+            str = 'twitterlogin' + secs,
+            hash = bcrypt.hashSync(secs.toString(), config.cookieSalt),
+            profile = {},
+            token,
+            original_token;
 
           for (var property in results) {
             if (results.hasOwnProperty(property)) {
@@ -97,9 +82,9 @@ var twitterLoginCallback = function(req, res, next) {
             }
           }
 
-          var token = jwt.sign(profile, config.cookieSalt, { expiresInMinutes: 60*60*24 });
+          token = jwt.sign(profile, config.cookieSalt, { expiresInMinutes: 60*60*24 });
           profile.created = secs;
-          var original_token = profile.token;
+          original_token = profile.token;
           profile.token = token;
           profile.original_token = original_token;
 
@@ -200,8 +185,6 @@ var userData = function (req, res, next) {
     user_id: req.params.user_id
   };
 
-  console.log('Updating user collection');
-
   client.getUserData(params, function(err, data) {
     if (err) {
       return next(err);
@@ -212,4 +195,13 @@ var userData = function (req, res, next) {
     });
 
   });
+};
+
+module.exports = function attachHandlers (app) {
+
+  //app.post('/tweetapp/login', login);
+  app.post('/tweetapp/login/twitter', twitterLogin);
+  app.get('/tweetapp/login/twitter/callback', twitterLoginCallback);
+  app.get('/tweetapp/auth/session', sessionData);
+  app.get('/tweetapp/auth/user/:user_id', userData);
 };
