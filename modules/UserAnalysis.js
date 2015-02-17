@@ -17,6 +17,7 @@ UserAnalysis.prototype = {
     var d = new Date(),
       today = d.toISOString(),
       key = today.substring(0, 10),
+      i,
       db = this.db,
       sevenDaysAgo = new Date(),
       thirtyDaysAgo = new Date(),
@@ -42,7 +43,6 @@ UserAnalysis.prototype = {
         },
       },
       params,
-      db = this.db,
       userId = this.userId,
       getTweetsSince = this.getTweetsSince;
 
@@ -60,8 +60,7 @@ UserAnalysis.prototype = {
         callback(err);
       }
 
-      var seven = 0, thirty = 0, ninety = 0;
-      for (var i=0; i<tweets.length; i++) {
+      for (i = 0; i < tweets.length; i++) {
         if (tweets[i].ts > sevenDaysAgo.getTime()) {
           analysis.seven.tweetCount++;
           analysis.seven.favouriteCount += tweets[i].favorite_count;
@@ -106,7 +105,7 @@ UserAnalysis.prototype = {
       analysis.created_at = d.getTime();
       analysis.date = key;
 
-      db.collection('analysis').update({ "date": key, "user_id": userId }, analysis, { upsert: true }, function(err) {
+      db.collection('analysis').update({ "date": key, "user_id": userId }, analysis, { upsert: true }, function (err) {
         if (err) {
           callback(err);
         }
@@ -121,7 +120,7 @@ UserAnalysis.prototype = {
     var db = this.db,
       userId = this.userId;
 
-    db.collection('analysis').find({ user_id: userId }, { sort:[['created_at',1]]}).toArray(function (err, results) {
+    db.collection('analysis').find({ user_id: userId }, { sort: [['created_at', 1]]}).toArray(function (err, results) {
       if (err) {
         callback(err);
       }
@@ -137,6 +136,7 @@ UserAnalysis.prototype = {
       sevenDaysAgo = new Date(),
       thirtyDaysAgo = new Date(),
       ninetyDaysAgo = new Date(),
+      i,
       analysis = {
         seven: 0,
         thirty: 0,
@@ -161,8 +161,7 @@ UserAnalysis.prototype = {
         callback(err);
       }
 
-      var seven = 0, thirty = 0, ninety = 0;
-      for (var i=0; i<mentions.length; i++) {
+      for (i = 0; i < mentions.length; i++) {
         if (mentions[i].ts > sevenDaysAgo.getTime()) {
           analysis.seven++;
         }
@@ -176,7 +175,7 @@ UserAnalysis.prototype = {
         }
       }
 
-      db.collection('analysis').update({ "date": key, "user_id": userId }, {"$set": { "seven.mentionsCount": analysis.seven } }, function(err) {
+      db.collection('analysis').update({ "date": key, "user_id": userId }, {"$set": { "seven.mentionsCount": analysis.seven } }, function (err) {
         if (err) {
           callback(err);
         }
@@ -188,7 +187,7 @@ UserAnalysis.prototype = {
   },
 
   getTweetsSince: function (db, params, callback) {
-    db.collection('tweets').find( { "user_id": params.userId, "ts": { $gt: params.ts } }, { sort:[['ts',-1]]} ).toArray(function(err, results) {
+    db.collection('tweets').find({ "user_id": params.userId, "ts": {$gt: params.ts}}, {sort: [['ts', -1]]}).toArray(function (err, results) {
       if (err) {
         callback(err);
       }
@@ -198,7 +197,7 @@ UserAnalysis.prototype = {
   },
 
   getUserMentionsSince: function (db, params, callback) {
-    db.collection('mentions').find( { "user_mentioned_id": params.userMentionedId, "ts": { $gt: params.ts } }, { sort:[['ts',-1]]} ).toArray(function(err, results) {
+    db.collection('mentions').find({ "user_mentioned_id": params.userMentionedId, "ts": {$gt: params.ts}}, {sort: [['ts', -1]]}).toArray(function (err, results) {
       if (err) {
         callback(err);
       }
@@ -212,14 +211,14 @@ UserAnalysis.prototype = {
       result = { msg: 'success' },
       db = this.db;
 
-    for (i=0; i<tweets.length; i++) {
+    for (i = 0; i < tweets.length; i++) {
 
       tweets[i].ts = new Date(tweets[i].created_at).getTime();
       tweets[i].user_id = tweets[i].user.id_str;
 
       (function (ix) {
 
-        db.collection('tweets').update({ "id": tweets[ix].id }, tweets[ix], { upsert: true }, function(err) {
+        db.collection('tweets').update({ "id": tweets[ix].id }, tweets[ix], { upsert: true }, function (err) {
           if (err) {
             callback(err);
           }
@@ -238,7 +237,7 @@ UserAnalysis.prototype = {
       result = { msg: 'success' },
       db = this.db;
 
-    for (i=0; i<mentions.length; i++) {
+    for (i = 0; i < mentions.length; i++) {
 
       mentions[i].ts = new Date(mentions[i].created_at).getTime();
       mentions[i].user_id = mentions[i].user.id_str;
@@ -246,7 +245,7 @@ UserAnalysis.prototype = {
 
       (function (ix) {
 
-        db.collection('mentions').update({ "id": mentions[ix].id }, mentions[ix], { upsert: true }, function(err) {
+        db.collection('mentions').update({"id": mentions[ix].id}, mentions[ix], {upsert: true}, function (err) {
           if (err) {
             callback(err);
           }
@@ -272,21 +271,21 @@ UserAnalysis.prototype = {
       if (!result) {
         return callback(null, replies);
       }
-      else {
-        replies.push(result);
-        return ua.getReplies(result.id_str, replies, callback);
-      }
+
+      replies.push(result);
+      return ua.getReplies(result.id_str, replies, callback);
     });
   },
 
   // Utility function to insert tweets pulled
   // from Twitter into database
   insertTweets: function (tweets, callback) {
+    var i;
 
     // Add a timestamp to each tweet
     // We need to check this in the analysis
     // Adding the user id to the tweet makes searching faster
-    for (var i=0; i<tweets.length; i++) {
+    for (i = 0; i < tweets.length; i++) {
       tweets[i].ts = new Date(tweets[i].created_at).getTime();
       tweets[i].user_id = tweets[i].user.id_str;
     }
@@ -301,7 +300,7 @@ UserAnalysis.prototype = {
   },
 
   getAllUsers: function (callback) {
-    
+    // Code to get all users goes here
   }
 };
 

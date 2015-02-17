@@ -11,8 +11,7 @@ var getItems = function (req, res, next) {
     }
     if (req.query && req.query.callback) {
       res.jsonp(results);
-    }
-    else {
+    } else {
       res.send(results);
     }
   });
@@ -73,8 +72,7 @@ var getContact = function (req, res, next) {
     }
     if (req.query && req.query.callback) {
       res.jsonp(results);
-    }
-    else {
+    } else {
       res.send(results);
     }
   });
@@ -105,7 +103,7 @@ var sendContactEmail = function (req, res, next) {
     }
   });
 
-  var body = "" + req.body.name + " sent an email using the contact form at js.systemick-web-development.co.uk\n\n";
+  var body = req.body.name + " sent an email using the contact form at js.systemick-web-development.co.uk\n\n";
   body = body + 'Email address: ' + req.body.email + "\n\n";
   body = body + req.body.message;
   var mailOptions = {

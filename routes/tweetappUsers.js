@@ -13,12 +13,12 @@ var twitterLogin = function (req, res, next) {
       "HMAC-SHA1"
     );
 
-  oauth.getOAuthRequestToken(function (error, oauth_token, oauth_token_secret, results) {
+  oauth.getOAuthRequestToken(function (error, oauth_token, oauth_token_secret) {
     if (error) {
       console.log(error);
       res.send("Authentication Failed!");
-    }
-    else {
+      next(error);
+    } else {
       req.session.oauth = {
         token: oauth_token,
         token_secret: oauth_token_secret
@@ -31,6 +31,7 @@ var twitterLogin = function (req, res, next) {
 
 var twitterLoginCallback = function (req, res, next) {
   var bcrypt = require('bcrypt'),
+    property,
     config = require('../config'),
     OAuth = require('oauth').OAuth,
     oauth = new OAuth(
@@ -55,8 +56,8 @@ var twitterLoginCallback = function (req, res, next) {
         if (error) {
           console.log(error);
           res.redirect(config.tweetapp.client + '/#/login/callback');
-        }
-        else {
+          next(error);
+        } else {
           req.session.oauth.access_token = oauth_access_token;
           req.session.oauth.access_token_secret = oauth_access_token_secret;
 

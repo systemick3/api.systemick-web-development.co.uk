@@ -35,10 +35,9 @@ TwitterApiClient.prototype = {
     if (cached && (+now - cached.when < hour)) {
       console.log('in TwitterApiClient retrieving tweets from cache');
       callback(null, cached.data);
-    }
-    else {
+    } else {
       console.log('in TwitterApiClient retrieving tweets from Twitter');
-      this.client.get(path, params, function (err, data, resp) {
+      this.client.get(path, params, function (err, data) {
         if (err) {
           console.log('TWITTER ERROR');
           console.log(err);
@@ -103,10 +102,6 @@ TwitterApiClient.prototype = {
     return this.get(URL_USER_TIMELINE, params, null, callback);
   },
 
-  getMentions: function (params, callback) {
-
-  },
-
   getRetweeters: function (params, callback) {
     // Can change quickly - do not cache
     return this.get(URL_RETWEETERS, params, null, callback);
@@ -121,7 +116,7 @@ TwitterApiClient.prototype = {
   },
 
   post: function (callback) {
-
+    // Posting to Twitter code goes here
   }
 
 };
