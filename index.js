@@ -22,12 +22,12 @@ var dbUrl = process.env.MONGOHQ_URL ||  config.mongo;
 if (!dbUrl) {
   throw new Error('Missing url for mongodb');
 }
-var db = mongoskin.db(dbUrl, { native_parser:true });
+var db = mongoskin.db(dbUrl, { native_parser: true });
 var ObjectID = mongoskin.ObjectID;
 
 var twitterCache = {};
 var tweetappDbUrl = config.tweetapp.dbUrl;
-var tweetappDb = mongoskin.db(tweetappDbUrl, { native_parser:true });
+var tweetappDb = mongoskin.db(tweetappDbUrl, { native_parser: true });
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -38,18 +38,18 @@ app.use(session({secret: config.sessionSalt}));
 // Development error handler
 // Will print stacktrace
 if (app.get('env') === 'development') {
-  app.use(function(err, req, res, next) {
+  app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
-        message: err.message,
-        error: err
+      message: err.message,
+      error: err
     });
   });
 }
 
 // Production error handler
 // No stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
@@ -64,7 +64,7 @@ app.use(morgan("combined", {stream: logfile}));
 app.use(morgan("dev"));
 var errorLogger = require('./utils/errorLogger');
 
-app.use(function(req,res,next){
+app.use(function (req, res, next) {
   req.db = db;
   req.objectID = ObjectID;
   req.twitterCache = twitterCache;
@@ -73,7 +73,7 @@ app.use(function(req,res,next){
   next();
 });
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", req.headers.origin);
   res.header("Access-Control-Allow-Methods", 'GET,PUT,POST,DELETE');
   res.header("Access-Control-Allow-Credentials", "true");
@@ -89,18 +89,18 @@ app.use(function(req, res, next) {
 routes.attachHandlers(app);
 
 // Default routes
-app.get('/', function(req, res, next) {
+app.get('/', function (req, res, next) {
   res.send('please select a collection, e.g., /api/skills');
 });
-app.get('/api', function(req, res, next) {
+app.get('/api', function (req, res, next) {
   res.send('please select a collection, e.g., /api/skills');
 });
-app.get('/twitter', function(req, res, next) {
+app.get('/twitter', function (req, res, next) {
   res.send('please select a collection, e.g., /api/skills');
 });
 
 // Fallback to 404 if route not found
-app.get('*', function(req, res){
+app.get('*', function (req, res) {
   res.sendStatus(404);
   res.end('Page not found');
 });
@@ -111,19 +111,20 @@ app.get('*', function(req, res){
 var server = http.createServer(app);
 
 var boot = function () {
-  var s = server.listen(app.get('port'), function(){
+  server.listen(app.get('port'), function () {
     console.info('Express server listening on port ' + app.get('port'));
     console.info('Current environment is ' + app.get('env'));
   });
 };
-var shutdown = function() {
+
+var shutdown = function () {
   server.close();
 };
+
 if (require.main === module) {
   boot();
-}
-else {
-  console.info('Running app as a module')
+} else {
+  console.info('Running app as a module');
   exports.boot = boot;
   exports.shutdown = shutdown;
   exports.port = app.get('port');

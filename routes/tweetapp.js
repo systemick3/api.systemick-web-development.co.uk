@@ -42,7 +42,7 @@ var getTweetsForUser = function (req, res, next) {
             data[ix].has_replies = true;
           }
         });
-      })(i);
+      }(i));
 
     }
 
@@ -143,53 +143,11 @@ var getRetweeters = function (req, res, next) {
         res.status(200).send({ msg: 'success', retweeters: retweeters, reach: reach });
       });
 
-    }
-    else {
+    } else {
       res.status(404).send();
     }
 
   });
-};
-
-var getUserAnalysis = function (req, res, next) {
-  var start = new Date().getTime(),
-    client = getClient(req),
-    userId = req.params.userId,
-    db = req.tweetappDb,
-    UserAnalysis = require('../modules/UserAnalysis'),
-    ua = new UserAnalysis(req.params.userId, db);
-
-  client.getAllTweetsForUser(userId, function (err, data) {
-    if (err) {
-      return next(err);
-    }
-
-    ua.syncUserTweets(data, function (err) {
-      if (err) {
-        return next(err);
-      }
-
-      ua.getAnalysis(function (err, analysis) {
-        if (err) {
-          return next(err);
-        }
-
-        getUserMentions(userId, db, function (err, results) {
-          analysis.seven.mentionCount = results.seven;
-          analysis.thirty.mentionCount = results.thirty;
-          analysis.ninety.mentionCount = results.ninety;
-
-          var end = new Date().getTime();
-          var secs = end - start;
-          res.status(200).send({ msg: 'success', secs: secs, 'analysis': analysis });
-        });
-
-      });
-
-    });
-
-  });
-
 };
 
 var getUserMentions = function (userId, db, callback) {
@@ -237,6 +195,51 @@ var getUserMentions = function (userId, db, callback) {
       });
     });
   });
+};
+
+var getUserAnalysis = function (req, res, next) {
+  var start = new Date().getTime(),
+    client = getClient(req),
+    userId = req.params.userId,
+    db = req.tweetappDb,
+    UserAnalysis = require('../modules/UserAnalysis'),
+    ua = new UserAnalysis(req.params.userId, db);
+
+  client.getAllTweetsForUser(userId, function (err, data) {
+    if (err) {
+      return next(err);
+    }
+
+    ua.syncUserTweets(data, function (err) {
+      if (err) {
+        return next(err);
+      }
+
+      ua.getAnalysis(function (err, analysis) {
+        if (err) {
+          return next(err);
+        }
+
+        getUserMentions(userId, db, function (err, results) {
+          if (err) {
+            return next(err);
+          }
+
+          analysis.seven.mentionCount = results.seven;
+          analysis.thirty.mentionCount = results.thirty;
+          analysis.ninety.mentionCount = results.ninety;
+
+          var end = new Date().getTime();
+          var secs = end - start;
+          res.status(200).send({ msg: 'success', secs: secs, 'analysis': analysis });
+        });
+
+      });
+
+    });
+
+  });
+
 };
 
 var getTrends = function (req, res, next) {
