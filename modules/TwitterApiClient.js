@@ -45,11 +45,14 @@ TwitterApiClient.prototype = {
           return callback(err);
         }
 
-        var date = new Date();
-        twitterCache[cacheKey] = {
-          data: data,
-          when: +date
-        };
+        if (cacheKey) {
+          var date = new Date();
+          twitterCache[cacheKey] = {
+            data: data,
+            when: +date
+          };
+        }
+
         return callback(null, data);
       });
     }

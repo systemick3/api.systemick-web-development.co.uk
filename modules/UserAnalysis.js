@@ -225,7 +225,7 @@ UserAnalysis.prototype = {
           }
         });
 
-      })(i);
+      }(i));
 
     }
 
@@ -298,6 +298,10 @@ UserAnalysis.prototype = {
 
       callback(null, result);
     });
+  },
+
+  getAllUsers: function (callback) {
+    
   }
 };
 
