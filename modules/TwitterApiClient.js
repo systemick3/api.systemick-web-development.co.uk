@@ -33,10 +33,10 @@ TwitterApiClient.prototype = {
     }
 
     if (cached && (+now - cached.when < hour)) {
-      console.log('in TwitterApiClient retrieving tweets from cache');
+      console.log('in TwitterApiClient retrieving data from cache');
       callback(null, cached.data);
     } else {
-      console.log('in TwitterApiClient retrieving tweets from Twitter');
+      console.log('in TwitterApiClient retrieving data from Twitter');
       this.client.get(path, params, function (err, data) {
         if (err) {
           console.log('TWITTER ERROR');

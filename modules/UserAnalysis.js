@@ -101,17 +101,13 @@ UserAnalysis.prototype = {
         }
       }
 
+      // Create the analysis and pass it to the callback
+      // It will be written to mongo in the route file
       analysis.user_id = userId;
       analysis.created_at = d.getTime();
       analysis.date = key;
 
-      db.collection('analysis').update({ "date": key, "user_id": userId }, analysis, { upsert: true }, function (err) {
-        if (err) {
-          callback(err);
-        }
-
-        callback(null, analysis);
-      });
+      callback(null, analysis);
 
     });
   },

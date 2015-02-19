@@ -229,9 +229,16 @@ var getUserAnalysis = function (req, res, next) {
           analysis.thirty.mentionCount = results.thirty;
           analysis.ninety.mentionCount = results.ninety;
 
-          var end = new Date().getTime();
-          var secs = end - start;
-          res.status(200).send({ msg: 'success', secs: secs, 'analysis': analysis });
+          db.collection('analysis').update({ "date": analysis.date, "user_id": analysis.user_id }, analysis, { upsert: true }, function (err) {
+            if (err) {
+              callback(err);
+            }
+
+            var end = new Date().getTime();
+            var secs = end - start;
+            res.status(200).send({ msg: 'success', secs: secs, 'analysis': analysis });
+          });
+
         });
 
       });
