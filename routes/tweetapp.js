@@ -71,7 +71,7 @@ var getUserAnalyses = function (req, res, next) {
     UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(req.params.userId, db);
 
-  ua.getAnalyses(function (err, analyses) {
+  ua.getAnalyses(parseInt(req.params.analysisCount), function (err, analyses) {
     if (err) {
       return next(err);
     }
@@ -225,9 +225,9 @@ var getUserAnalysis = function (req, res, next) {
             return next(err);
           }
 
-          analysis.seven.mentionCount = results.seven;
-          analysis.thirty.mentionCount = results.thirty;
-          analysis.ninety.mentionCount = results.ninety;
+          analysis.seven.mentionsCount = results.seven;
+          analysis.thirty.mentionsCount = results.thirty;
+          analysis.ninety.mentionsCount = results.ninety;
 
           db.collection('analysis').update({ "date": analysis.date, "user_id": analysis.user_id }, analysis, { upsert: true }, function (err) {
             if (err) {
@@ -295,7 +295,7 @@ module.exports = function attachHandlers(app) {
   app.get('/tweetapp/auth/tweet/user/:screenName/:tweetCount/:maxId', getTweetsForUser);
   app.get('/tweetapp/auth/tweet/one/:id', getTweet);
   app.get('/tweetapp/auth/analysis/user/:userId', getUserAnalysis);
-  app.get('/tweetapp/auth/analysis/chart/:userId', getUserAnalyses);
+  app.get('/tweetapp/auth/analysis/chart/:userId/:analysisCount', getUserAnalyses);
   app.get('/tweetapp/auth/tweet/retweeters/:tweetId', getRetweeters);
   app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', getReplies);
   app.get('/tweetapp/auth/tweet/trends', getTrends);

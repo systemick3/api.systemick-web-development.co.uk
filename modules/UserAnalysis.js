@@ -112,11 +112,11 @@ UserAnalysis.prototype = {
     });
   },
 
-  getAnalyses: function (callback) {
+  getAnalyses: function (count, callback) {
     var db = this.db,
       userId = this.userId;
 
-    db.collection('analysis').find({ user_id: userId }, { sort: [['created_at', 1]]}).toArray(function (err, results) {
+    db.collection('analysis').find({ user_id: userId }, { sort: [['created_at', -1]]}).limit(count).toArray(function (err, results) {
       if (err) {
         callback(err);
       }
@@ -171,13 +171,7 @@ UserAnalysis.prototype = {
         }
       }
 
-      db.collection('analysis').update({ "date": key, "user_id": userId }, {"$set": { "seven.mentionsCount": analysis.seven } }, function (err) {
-        if (err) {
-          callback(err);
-        }
-
-        callback(null, analysis);
-      });
+      callback(null, analysis);
 
     });
   },
