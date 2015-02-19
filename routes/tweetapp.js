@@ -1,14 +1,14 @@
 // Routes for tweetapp
 
 // Utility function to instantiate a twitter API client
-var getClient = function (req, config) {
+var getClient = function (req, twitterConfig) {
   var TwitterApiClient = require('../modules/TwitterApiClient');
 
-  if (!config) {
-    config = require('../config');
+  if (!twitterConfig) {
+    twitterConfig = require('../config').tweetapp.twitter;
   }
 
-  return new TwitterApiClient(config.tweetapp.twitter, req);
+  return new TwitterApiClient(twitterConfig, req);
 };
 
 // Get tweets for user
@@ -150,12 +150,11 @@ var getRetweeters = function (req, res, next) {
   });
 };
 
-var getUserMentions = function (userId, db, callback) {
+var getUserMentions = function (userId, db, req, callback) {
   var config = require('../config'),
-    Twit = require('twit'),
-    T,
+    client,
     twitterConfig,
-    params = { count: 200 },
+    params = { count: 200, userId: userId },
     path = 'statuses/mentions_timeline',
     UserAnalysis = require('../modules/UserAnalysis'),
     ua = new UserAnalysis(userId, db);
@@ -172,9 +171,9 @@ var getUserMentions = function (userId, db, callback) {
       access_token_secret: result.access_token_secret
     };
 
-    T = new Twit(twitterConfig);
+    client = getClient(req, twitterConfig);
 
-    T.get(path, params, function (err, data) {
+    client.getMentions(params, function (err, data) {
       if (err) {
         return callback(err);
       }
@@ -194,6 +193,7 @@ var getUserMentions = function (userId, db, callback) {
 
       });
     });
+
   });
 };
 
@@ -220,7 +220,7 @@ var getUserAnalysis = function (req, res, next) {
           return next(err);
         }
 
-        getUserMentions(userId, db, function (err, results) {
+        getUserMentions(userId, db, req, function (err, results) {
           if (err) {
             return next(err);
           }

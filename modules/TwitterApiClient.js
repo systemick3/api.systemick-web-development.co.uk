@@ -4,6 +4,7 @@ var URL_USER_TIMELINE = 'statuses/user_timeline',
   URL_RETWEETERS = 'statuses/retweeters/ids',
   URL_USERS = 'users/lookup',
   URL_TRENDS = 'trends/place',
+  URL_MENTIONS = 'statuses/mentions_timeline',
   MAX_USER_TWEETS = 200,
   MAX_RETWEETERS = 100;
 
@@ -82,13 +83,14 @@ TwitterApiClient.prototype = {
   },
 
   getAllTweetsForUser: function (userId, callback) {
-    var path = URL_USER_TIMELINE;
-    var params = {
-      user_id: userId,
-      count: MAX_USER_TWEETS
-    };
+    var path = URL_USER_TIMELINE,
+      params = {
+        user_id: userId,
+        count: MAX_USER_TWEETS
+      },
+      cacheKey = path + '/' + params.userId + '/' + params.count;
 
-    this.get(path, params, null, function (err, data) {
+    this.get(path, params, cacheKey, function (err, data) {
       if (err) {
         return callback(null);
       }
@@ -96,10 +98,6 @@ TwitterApiClient.prototype = {
       // Return the last 200 tweets
       return callback(null, data);
     });
-  },
-
-  getUserTweetsForSync: function (params, callback) {
-    return this.get(URL_USER_TIMELINE, params, null, callback);
   },
 
   getRetweeters: function (params, callback) {
@@ -112,7 +110,13 @@ TwitterApiClient.prototype = {
   },
 
   getTrends: function (params, callback) {
-    return this.get(URL_TRENDS, params, null, callback);
+    var cacheKey = URL_TRENDS + '/' + params.id;
+    return this.get(URL_TRENDS, params, cacheKey, callback);
+  },
+
+  getMentions: function (params, callback) {
+    var cacheKey = URL_MENTIONS + '/' + params.UserId + '/' + params.count;
+    return this.get(URL_MENTIONS, params, cacheKey, callback);
   },
 
   post: function (callback) {
