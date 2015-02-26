@@ -89,6 +89,8 @@ var twitterLoginCallback = function (req, res, next) {
           profile.token = token;
           profile.original_token = original_token;
 
+          console.log(config);
+
           db.collection("sessions").insert(profile, function(e, result) {
 
             if (e) {
@@ -104,7 +106,7 @@ var twitterLoginCallback = function (req, res, next) {
     );
   }
   else {
-    res.redirect('http://twitterapp.localhost/#/login/callback'); // Redirect to login page
+    res.redirect(config.tweetapp.client + '/#/login/callback'); // Redirect to login page
   }
 
 };
