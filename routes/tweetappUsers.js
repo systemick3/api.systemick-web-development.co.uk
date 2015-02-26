@@ -163,18 +163,26 @@ var twitterLoginCallback = function (req, res, next) {
 };*/
 
 var sessionData = function(req, res, next) {
-  var collectionName = 'sessions';
-  var db = req.tweetappDb;
-  var s = req.headers.authorization;
-  var token = s.substring(7);
+  var collectionName = 'sessions',
+    response = {},
+    db = req.tweetappDb,
+    s = req.headers.authorization,
+    token;
 
-  db.collection(collectionName).find({token: token}, {user_id:1, screen_name:1}).sort({"created" : -1}).limit(1).toArray(function(e, results){
-    if (e) {
-      return next(e);
-    }
-    console.log(results);
-    res.status(200).send(results[0]);
-  });
+  if (!s) {
+    response.msg = 'ERROR: no token';
+    res.status(200).send(response);
+  } else {
+    token = s.substring(7);
+    db.collection(collectionName).find({token: token}, {user_id:1, screen_name:1}).sort({"created" : -1}).limit(1).toArray(function(e, results){
+      if (e) {
+        return next(e);
+      }
+      response.msg = 'Success';
+      response.data = results[0];
+      res.status(200).send(response);
+    });
+  }
 };
 
 var userData = function (req, res, next) {
