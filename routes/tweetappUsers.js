@@ -173,7 +173,7 @@ var sessionData = function(req, res, next) {
 
   if (!s) {
     response.msg = 'ERROR: no token';
-    res.status(200).send(response);
+    res.status(400).send(response);
   } else {
     token = s.substring(7);
     db.collection(collectionName).find({token: token}, {user_id:1, screen_name:1}).sort({"created" : -1}).limit(1).toArray(function(e, results){
