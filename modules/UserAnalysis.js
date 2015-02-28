@@ -107,7 +107,15 @@ UserAnalysis.prototype = {
       analysis.created_at = d.getTime();
       analysis.date = key;
 
-      callback(null, analysis);
+      db.collection('users').findOne({'id_str': userId}, function (err, result) {
+        if (err) {
+          callback(err);
+        }
+
+        analysis.seven.followersCount = result.followers_count;
+
+        callback(null, analysis);
+      });
 
     });
   },
