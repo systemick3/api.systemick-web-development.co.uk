@@ -50,3 +50,5 @@ db.collection('users').find({"last_sync": {$lt: sevenDaysAgo.getTime()}}).toArra
   }
 
 });
+
+process.exit(0);
