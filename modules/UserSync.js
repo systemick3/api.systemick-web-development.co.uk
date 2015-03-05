@@ -32,7 +32,7 @@ UserSync.prototype = {
 
   // Sync the users tweets and mentions and create an analysis object
   syncUser: function (callback) {
-    var client = this.getClient({}),
+    var client = this.getClient(),
       userId = this.userId,
       config = require('../config'),
       twitterConfig,

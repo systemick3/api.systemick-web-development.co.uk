@@ -17,6 +17,7 @@ var UserSync = require('../modules/UserSync'),
 sevenDaysAgo.setDate(d.getDate() - 7);
 
 console.log(sevenDaysAgo.getTime());
+console.log(dbUrl)
 
 db.collection('users').find({"last_sync": {$lt: sevenDaysAgo.getTime()}}).toArray(function (err, documents) {
   if (err) {
@@ -27,6 +28,7 @@ db.collection('users').find({"last_sync": {$lt: sevenDaysAgo.getTime()}}).toArra
 
     (function (ix) {
       user = documents[ix];
+      console.log(user);
       user.last_sync = d.getTime();
 
       ua = new UserSync(user.id_str);
@@ -42,6 +44,7 @@ db.collection('users').find({"last_sync": {$lt: sevenDaysAgo.getTime()}}).toArra
           }
 
           console.log('Done');
+          process.exit(0);
         });
 
       });
@@ -50,5 +53,3 @@ db.collection('users').find({"last_sync": {$lt: sevenDaysAgo.getTime()}}).toArra
   }
 
 });
-
-process.exit(0);

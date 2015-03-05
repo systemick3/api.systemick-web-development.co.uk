@@ -26,10 +26,13 @@ TwitterApiClient.prototype = {
   get: function (path, params, cacheKey, callback) {
     var cached,
       now = new Date(),
-      hour = 1000 * 60 * 60,
-      twitterCache = this.req.twitterCache;
+      hour = 1000 * 60 * 60;
 
-    if (cacheKey) {
+    if (this.req) {
+      twitterCache = this.req.twitterCache;
+    }
+
+    if (cacheKey && this.req) {
       cached = this.req.twitterCache[cacheKey];
     }
 
@@ -45,7 +48,7 @@ TwitterApiClient.prototype = {
           return callback(err);
         }
 
-        if (cacheKey) {
+        if (cacheKey && this.req) {
           var date = new Date();
           twitterCache[cacheKey] = {
             data: data,
