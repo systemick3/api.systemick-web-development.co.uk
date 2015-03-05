@@ -58,7 +58,7 @@ UserSync.prototype = {
 
         // Create an anlysis object
         // It will be saved in mongodb
-        ua.getAnalysis(function (err) {
+        ua.getAnalysis(function (err, analysis) {
           if (err) {
             return callback(err);
           }
@@ -94,12 +94,26 @@ UserSync.prototype = {
 
                 // Add the mentions to the analysis object created above
                 // This also gets saved to mongodb
-                ua.getMentionsForAnalysis(function (err, analysis) {
+                ua.getMentionsForAnalysis(function (err, mentions) {
                   if (err) {
                     return callback(err);
                   }
 
-                  return callback(null, analysis);
+                  analysis.seven.mentionsCount = mentions.seven;
+                  analysis.thirty.mentionsCount = mentions.thirty;
+                  analysis.ninety.mentionsCount = mentions.ninety;
+
+                  db.collection('analysis').update({ "date": analysis.date, "user_id": analysis.user_id }, analysis, { upsert: true }, function (err) {
+                    if (err) {
+                      callback(err);
+                    }
+
+                    console.log(analysis);
+
+                    return callback(null, analysis);
+
+                  });
+
                 });
 
               });
