@@ -188,21 +188,24 @@ var sessionData = function(req, res, next) {
 };
 
 var userData = function (req, res, next) {
-  var config = require('../config');
-  var TwitterApiClient = require('../modules/TwitterApiClient');
-  var client = new TwitterApiClient(config.tweetapp.twitter, req);
-  var db = req.tweetappDb;
-  var params = {
-    user_id: req.params.user_id
-  };
+  var config = require('../config'),
+    TwitterApiClient = require('../modules/TwitterApiClient'),
+    client = new TwitterApiClient(config.tweetapp.twitter, req),
+    db = req.tweetappDb,
+    d = new Date(),
+    params = {
+      user_id: req.params.user_id
+    };
 
-  client.getUserData(params, function(err, data) {
+  client.getUserData(params, function(err, user) {
     if (err) {
       return next(err);
     }
 
-    db.collection('users').update({ "id_str": req.params.user_id }, data, { upsert: true }, function(err) {
-      res.status(200).send(data);
+    user.last_sync = d.getTime();
+
+    db.collection('users').update({ "id_str": req.params.user_id }, user, { upsert: true }, function(err) {
+      res.status(200).send(user);
     });
 
   });
