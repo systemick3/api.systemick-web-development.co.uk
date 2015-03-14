@@ -5,6 +5,9 @@ var URL_USER_TIMELINE = 'statuses/user_timeline',
   URL_USERS = 'users/lookup',
   URL_TRENDS = 'trends/place',
   URL_MENTIONS = 'statuses/mentions_timeline',
+  URL_STATUSES_UPDATE = 'statuses/update',
+  URL_RETWEET_STATUS = 'statuses/retweet',
+  URL_FAVOURITE_STATUS = 'favorites/create',
   MAX_USER_TWEETS = 200,
   MAX_RETWEETERS = 100;
 
@@ -122,8 +125,28 @@ TwitterApiClient.prototype = {
     return this.get(URL_MENTIONS, params, cacheKey, callback);
   },
 
-  post: function (callback) {
-    // Posting to Twitter code goes here
+  post: function (path, params, callback) {
+    this.client.post(path, params, function (err, data) {
+      if (err) {
+        console.log('TWITTER ERROR');
+        console.log(err);
+        return callback(err);
+      }
+
+      return callback(null, data);
+    });
+  },
+
+  postStatusUpdate: function (params, callback) {
+    return this.post(URL_STATUSES_UPDATE, params, callback);
+  },
+
+  postStatusRetweet: function(id_str, callback) {
+    return this.post(URL_RETWEET_STATUS + '/' + id_str, {}, callback);
+  },
+
+  postStatusFavourite: function (params, callback) {
+    return this.post(URL_FAVOURITE_STATUS, params, callback);
   }
 
 };

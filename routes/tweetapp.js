@@ -288,6 +288,167 @@ var getSentiment = function (req, res, next) {
   });
 };
 
+var postStatusUpdate = function (req, res, next) {
+  var userId = req.body.userId,
+    client,
+    config = require('../config'),
+    db = req.tweetappDb,
+    params = {'status': req.body.message};
+
+  db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    console.log('SESSION');
+    console.log(result);
+
+    twitterConfig = {
+      consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
+      consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
+      access_token: result.access_token,
+      access_token_secret: result.access_token_secret
+    };
+
+    console.log(twitterConfig);
+
+    client = getClient(req, twitterConfig);
+
+    client.postStatusUpdate(params, function (err, result) {
+      console.log('RESULT');
+      console.log(result);
+
+      if (result.id_str) {
+        res.status(201).send({'msg': 'Success'});
+      } else {
+        res.status(401).send({'msg': 'Error'})
+      }
+    });
+
+  });
+};
+
+var postStatusRetweet = function (req, res, next) {
+  var userId = req.body.userId,
+    tweetId = req.body.tweetId,
+    client,
+    config = require('../config'),
+    db = req.tweetappDb;
+
+  db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    console.log('SESSION');
+    console.log(result);
+
+    twitterConfig = {
+      consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
+      consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
+      access_token: result.access_token,
+      access_token_secret: result.access_token_secret
+    };
+
+    console.log(twitterConfig);
+
+    client = getClient(req, twitterConfig);
+
+    client.postStatusRetweet(tweetId, function (err, result) {
+      console.log('RESULT');
+      console.log(result);
+
+      if (result.id_str) {
+        res.status(201).send({'msg': 'Success'});
+      } else {
+        res.status(401).send({'msg': 'Error'})
+      }
+    });
+
+  });
+};
+
+var postStatusFavourite = function (req, res, next) {
+  var userId = req.body.userId,
+    tweetId = req.body.tweetId,
+    client,
+    config = require('../config'),
+    db = req.tweetappDb,
+    params = {'id': tweetId};
+
+  db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    console.log('SESSION');
+    console.log(result);
+
+    twitterConfig = {
+      consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
+      consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
+      access_token: result.access_token,
+      access_token_secret: result.access_token_secret
+    };
+
+    console.log(twitterConfig);
+
+    client = getClient(req, twitterConfig);
+
+    client.postStatusFavourite(params, function (err, result) {
+      console.log('RESULT');
+      console.log(result);
+
+      if (result.id_str) {
+        res.status(201).send({'msg': 'Success'});
+      } else {
+        res.status(401).send({'msg': 'Error'})
+      }
+    });
+
+  });
+};
+
+var postStatusReply = function (req, res, next) {
+  var userId = req.body.userId,
+    client,
+    config = require('../config'),
+    db = req.tweetappDb,
+    params = {'status': req.body.message, 'in_reply_to_status_id': req.body.tweetId};
+
+  db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    console.log('SESSION');
+    console.log(result);
+
+    twitterConfig = {
+      consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
+      consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
+      access_token: result.access_token,
+      access_token_secret: result.access_token_secret
+    };
+
+    console.log(twitterConfig);
+
+    client = getClient(req, twitterConfig);
+
+    client.postStatusReply(params, function (err, result) {
+      console.log('RESULT');
+      console.log(result);
+
+      if (result.id_str) {
+        res.status(201).send({'msg': 'Success'});
+      } else {
+        res.status(401).send({'msg': 'Error'})
+      }
+    });
+
+  });
+};
+
 module.exports = function attachHandlers(app) {
 
   // Tweetapp routes
@@ -301,4 +462,8 @@ module.exports = function attachHandlers(app) {
   app.get('/tweetapp/auth/tweet/trends', getTrends);
   app.get('/tweetapp/auth/tweet/sentiment/:tweetId', getSentiment);
   app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', getSentiment);
+  app.post('/tweetapp/auth/tweet/new', postStatusUpdate);
+  app.post('/tweetapp/auth/tweet/retweet', postStatusRetweet);
+  app.post('/tweetapp/auth/tweet/favourite', postStatusFavourite);
+  app.post('/tweetapp/auth/tweet/reply', postStatusReply);
 };
