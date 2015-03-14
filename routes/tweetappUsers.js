@@ -89,12 +89,10 @@ var twitterLoginCallback = function (req, res, next) {
           profile.token = token;
           profile.original_token = original_token;
 
-          console.log(config);
+          db.collection('sessions').update({'user_id': profile.user_id}, profile, {'upsert': true}, function (err) {
 
-          db.collection("sessions").insert(profile, function(e, result) {
-
-            if (e) {
-              console.log(e);
+            if (err) {
+              console.log(err);
               res.redirect(config.tweetapp.client + '/#/login/callback');
             }
 
