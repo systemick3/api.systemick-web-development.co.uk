@@ -8,6 +8,7 @@ var URL_USER_TIMELINE = 'statuses/user_timeline',
   URL_STATUSES_UPDATE = 'statuses/update',
   URL_RETWEET_STATUS = 'statuses/retweet',
   URL_FAVOURITE_STATUS = 'favorites/create',
+  URL_UNFAVOURITE_STATUS = 'favorites/destroy',
   MAX_USER_TWEETS = 200,
   MAX_RETWEETERS = 100;
 
@@ -147,6 +148,10 @@ TwitterApiClient.prototype = {
 
   postStatusFavourite: function (params, callback) {
     return this.post(URL_FAVOURITE_STATUS, params, callback);
+  },
+
+  postStatusUnFavourite: function (params, callback) {
+    return this.post(URL_UNFAVOURITE_STATUS, params, callback);
   }
 
 };
