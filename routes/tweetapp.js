@@ -295,6 +295,10 @@ var postStatusUpdate = function (req, res, next) {
     db = req.tweetappDb,
     params = {'status': req.body.message};
 
+    if (req.body.tweetId) {
+      params.in_reply_to_status_id = req.body.tweetId;
+    }
+
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
       return callback(err);
@@ -507,5 +511,5 @@ module.exports = function attachHandlers(app) {
   app.post('/tweetapp/auth/tweet/retweet', postStatusRetweet);
   app.post('/tweetapp/auth/tweet/favourite', postStatusFavourite);
   app.post('/tweetapp/auth/tweet/unfavourite', postStatusUnFavourite);
-  app.post('/tweetapp/auth/tweet/reply', postStatusReply);
+  app.post('/tweetapp/auth/tweet/reply', postStatusUpdate);
 };
