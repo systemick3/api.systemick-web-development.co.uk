@@ -323,6 +323,51 @@ var postStatusUpdate = function (req, res, next) {
       console.log(result);
 
       if (result.id_str) {
+        res.status(201).send({'msg': 'Success', 'tweet': result});
+      } else {
+        res.status(401).send({'msg': 'Error'})
+      }
+    });
+
+  });
+};
+
+var postStatusDestroy = function (req, res, next) {
+  var userId = req.body.userId,
+    tweetId = req.body.tweetId,
+    client,
+    config = require('../config'),
+    db = req.tweetappDb,
+    params = {'status': req.body.message};
+
+    if (req.body.tweetId) {
+      params.in_reply_to_status_id = req.body.tweetId;
+    }
+
+  db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
+    if (err) {
+      return callback(err);
+    }
+
+    console.log('SESSION');
+    console.log(result);
+
+    twitterConfig = {
+      consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
+      consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
+      access_token: result.access_token,
+      access_token_secret: result.access_token_secret
+    };
+
+    console.log(twitterConfig);
+
+    client = getClient(req, twitterConfig);
+
+    client.postStatusDestroy(tweetId, function (err, result) {
+      console.log('RESULT');
+      console.log(result);
+
+      if (result.id_str) {
         res.status(201).send({'msg': 'Success'});
       } else {
         res.status(401).send({'msg': 'Error'})
@@ -363,7 +408,7 @@ var postStatusRetweet = function (req, res, next) {
       console.log(result);
 
       if (result.id_str) {
-        res.status(201).send({'msg': 'Success'});
+        res.status(201).send({'msg': 'Success', 'tweet': result});
       } else {
         res.status(401).send({'msg': 'Error'})
       }
@@ -508,6 +553,7 @@ module.exports = function attachHandlers(app) {
   app.get('/tweetapp/auth/tweet/sentiment/:tweetId', getSentiment);
   app.get('/tweetapp/auth/tweet/sentiment/:tweetId/:isReply', getSentiment);
   app.post('/tweetapp/auth/tweet/new', postStatusUpdate);
+  app.post('/tweetapp/auth/tweet/destroy', postStatusDestroy);
   app.post('/tweetapp/auth/tweet/retweet', postStatusRetweet);
   app.post('/tweetapp/auth/tweet/favourite', postStatusFavourite);
   app.post('/tweetapp/auth/tweet/unfavourite', postStatusUnFavourite);

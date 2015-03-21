@@ -6,6 +6,7 @@ var URL_USER_TIMELINE = 'statuses/user_timeline',
   URL_TRENDS = 'trends/place',
   URL_MENTIONS = 'statuses/mentions_timeline',
   URL_STATUSES_UPDATE = 'statuses/update',
+  URL_STATUSES_DESTROY = 'statuses/destroy',
   URL_RETWEET_STATUS = 'statuses/retweet',
   URL_FAVOURITE_STATUS = 'favorites/create',
   URL_UNFAVOURITE_STATUS = 'favorites/destroy',
@@ -140,6 +141,10 @@ TwitterApiClient.prototype = {
 
   postStatusUpdate: function (params, callback) {
     return this.post(URL_STATUSES_UPDATE, params, callback);
+  },
+
+  postStatusDestroy: function (id_str, callback) {
+    return this.post(URL_STATUSES_DESTROY + '/' + id_str, {}, callback);
   },
 
   postStatusRetweet: function(id_str, callback) {
