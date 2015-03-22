@@ -319,6 +319,10 @@ var postStatusUpdate = function (req, res, next) {
     client = getClient(req, twitterConfig);
 
     client.postStatusUpdate(params, function (err, result) {
+      if (err) {
+        return callback(err);
+      }
+
       console.log('RESULT');
       console.log(result);
 
@@ -364,6 +368,10 @@ var postStatusDestroy = function (req, res, next) {
     client = getClient(req, twitterConfig);
 
     client.postStatusDestroy(tweetId, function (err, result) {
+      if (err) {
+        return callback(err);
+      }
+
       console.log('RESULT');
       console.log(result);
 
@@ -404,6 +412,10 @@ var postStatusRetweet = function (req, res, next) {
     client = getClient(req, twitterConfig);
 
     client.postStatusRetweet(tweetId, function (err, result) {
+      if (err) {
+        return callback(err);
+      }
+
       console.log('RESULT');
       console.log(result);
 
@@ -445,6 +457,10 @@ var postStatusFavourite = function (req, res, next) {
     client = getClient(req, twitterConfig);
 
     client.postStatusFavourite(params, function (err, result) {
+      if (err) {
+        return callback(err);
+      }
+
       console.log('RESULT');
       console.log(result);
 
@@ -486,6 +502,10 @@ var postStatusUnFavourite = function (req, res, next) {
     client = getClient(req, twitterConfig);
 
     client.postStatusUnFavourite(params, function (err, result) {
+      if (err) {
+        return callback(err);
+      }
+
       console.log('RESULT');
       console.log(result);
 
@@ -526,6 +546,10 @@ var postStatusReply = function (req, res, next) {
     client = getClient(req, twitterConfig);
 
     client.postStatusReply(params, function (err, result) {
+      if (err) {
+        return callback(err);
+      }
+      
       console.log('RESULT');
       console.log(result);
 
