@@ -301,7 +301,7 @@ var postStatusUpdate = function (req, res, next) {
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     console.log('SESSION');
@@ -320,7 +320,7 @@ var postStatusUpdate = function (req, res, next) {
 
     client.postStatusUpdate(params, function (err, result) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
 
       console.log('RESULT');
@@ -350,7 +350,7 @@ var postStatusDestroy = function (req, res, next) {
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     console.log('SESSION');
@@ -369,7 +369,7 @@ var postStatusDestroy = function (req, res, next) {
 
     client.postStatusDestroy(tweetId, function (err, result) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
 
       console.log('RESULT');
@@ -394,7 +394,7 @@ var postStatusRetweet = function (req, res, next) {
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     console.log('SESSION');
@@ -413,7 +413,7 @@ var postStatusRetweet = function (req, res, next) {
 
     client.postStatusRetweet(tweetId, function (err, result) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
 
       console.log('RESULT');
@@ -439,7 +439,7 @@ var postStatusFavourite = function (req, res, next) {
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     console.log('SESSION');
@@ -458,7 +458,7 @@ var postStatusFavourite = function (req, res, next) {
 
     client.postStatusFavourite(params, function (err, result) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
 
       console.log('RESULT');
@@ -484,7 +484,7 @@ var postStatusUnFavourite = function (req, res, next) {
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     console.log('SESSION');
@@ -503,7 +503,7 @@ var postStatusUnFavourite = function (req, res, next) {
 
     client.postStatusUnFavourite(params, function (err, result) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
 
       console.log('RESULT');
@@ -528,7 +528,7 @@ var postStatusReply = function (req, res, next) {
 
   db.collection('sessions').findOne({ 'user_id': userId }, function (err, result) {
     if (err) {
-      return callback(err);
+      return next(err);
     }
 
     console.log('SESSION');
@@ -547,7 +547,7 @@ var postStatusReply = function (req, res, next) {
 
     client.postStatusReply(params, function (err, result) {
       if (err) {
-        return callback(err);
+        return next(err);
       }
       
       console.log('RESULT');
