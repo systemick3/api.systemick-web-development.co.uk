@@ -24,6 +24,8 @@ var twitterLogin = function (req, res, next) {
         token_secret: oauth_token_secret
       };
 
+      req.session.siteUrl = req.body.siteUrl;
+
       res.redirect('https://twitter.com/oauth/authenticate?oauth_token=' + oauth_token);
     }
   });
@@ -55,7 +57,7 @@ var twitterLoginCallback = function (req, res, next) {
       function (error, oauth_access_token, oauth_access_token_secret, results) {
         if (error) {
           console.log(error);
-          res.redirect(config.tweetapp.client + '/#/login/callback');
+          res.redirect(req.session.siteUrl + '/#/login/callback');
           next(error);
         } else {
           req.session.oauth.access_token = oauth_access_token;
@@ -93,10 +95,10 @@ var twitterLoginCallback = function (req, res, next) {
 
             if (err) {
               console.log(err);
-              res.redirect(config.tweetapp.client + '/#/login/callback');
+              res.redirect(req.session.siteUrl + '/#/login/callback');
             }
 
-            res.redirect(config.tweetapp.client + '/#/login/callback/' + token);
+            res.redirect(req.session.siteUrl + '/#/login/callback/' + token);
           });
 
         }

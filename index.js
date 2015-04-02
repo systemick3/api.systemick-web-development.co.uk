@@ -33,7 +33,11 @@ var tweetappDb = mongoskin.db(tweetappDbUrl, { native_parser: true });
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(session({secret: config.sessionSalt}));
+app.use(session({
+  secret: config.sessionSalt,
+  resave: true,
+  saveUninitialized: true
+}));
 
 // Development error handler
 // Will print stacktrace
