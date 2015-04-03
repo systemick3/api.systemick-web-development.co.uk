@@ -31,14 +31,15 @@ TwitterApiClient.prototype = {
   get: function (path, params, cacheKey, callback) {
     var cached,
       now = new Date(),
+      req = this.req,
       hour = 1000 * 60 * 60;
 
-    if (this.req) {
-      twitterCache = this.req.twitterCache;
+    if (req) {
+      twitterCache = req.twitterCache;
     }
 
-    if (cacheKey && this.req) {
-      cached = this.req.twitterCache[cacheKey];
+    if (cacheKey && req) {
+      cached = req.twitterCache[cacheKey];
     }
 
     if (cached && (+now - cached.when < hour)) {
@@ -53,7 +54,7 @@ TwitterApiClient.prototype = {
           return callback(err);
         }
 
-        if (cacheKey && this.req) {
+        if (cacheKey && req) {
           var date = new Date();
           twitterCache[cacheKey] = {
             data: data,
