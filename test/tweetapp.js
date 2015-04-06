@@ -5,7 +5,7 @@ var boot = require('../index').boot,
   expect = require('expect.js'),
   baseUrl = 'http://localhost:' + port;
 
-describe('users', function () {
+describe('tweets', function () {
   before(function () {
     boot();
   });
@@ -34,6 +34,7 @@ describe('users', function () {
   });
 
   it('returns user analysis', function (done) {
+    this.timeout(5000);
     superagent.get(baseUrl + '/tweetapp/auth/analysis/user/165697756')
       .end(function (e, res) {
         expect(e).to.eql(null);
@@ -47,7 +48,7 @@ describe('users', function () {
   });
 
   it('return multiple analyses', function (done) {
-    superagent.get(baseUrl + '/tweetapp/auth/analysis/chart/165697756')
+    superagent.get(baseUrl + '/tweetapp/auth/analysis/chart/165697756/10')
       .end(function (e, res) {
         expect(e).to.eql(null);
         expect(res.status).to.eql(200);
@@ -68,19 +69,6 @@ describe('users', function () {
         expect(typeof res.body).to.eql('object');
         expect(Array.isArray(res.body.retweeters)).to.eql(true);
         expect(res.body.retweeters.length).to.above(0);
-        done();
-      });
-  });
-
-  it('returns a list the number of mentions', function (done) {
-    superagent.get(baseUrl + '/tweetapp/auth/tweet/mentions/165697756')
-      .end(function (e, res) {
-        expect(e).to.eql(null);
-        expect(res.status).to.eql(200);
-        expect(res.body.msg).to.eql('success');
-        expect(typeof res.body).to.eql('object');
-        expect(typeof res.body.mentions).to.eql('object');
-        expect(res.body.mentions.ninety).to.be.above(0);
         done();
       });
   });
@@ -118,6 +106,107 @@ describe('users', function () {
         expect(typeof res.body).to.eql('object');
         expect(typeof res.body.sentiment).to.eql('object');
         expect(Array.isArray(res.body.sentiment.tokens)).to.eql(true);
+        done();
+      });
+  });
+
+  var destroyOriginalTweetId;
+
+  it('posts a status update', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/new')
+      .send({'message': 'Hello World', 'userId': '165697756'})
+      .end(function (e, res) {
+        destroyOriginalTweetId = res.body.tweet.id_str;
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        expect(typeof res.body.tweet).to.eql('object');
+        done();
+      });
+  });
+
+  it('favourites a status update', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/favourite')
+      .send({'tweetId': destroyOriginalTweetId, 'userId': '165697756'})
+      .end(function (e, res) {
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        done();
+      });
+  });
+
+  it('unfavourites a status update', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/unfavourite')
+      .send({'tweetId': destroyOriginalTweetId, 'userId': '165697756'})
+      .end(function (e, res) {
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        done();
+      });
+  });
+
+  var retweetId = '584991805508296704';
+  var destroyRetweetId;
+
+  it('retweets a tweet', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/retweet')
+      .send({'tweetId': retweetId, 'userId': '165697756'})
+      .end(function (e, res) {
+        destroyRetweetId = res.body.tweet.id_str;
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        expect(typeof res.body.tweet).to.eql('object');
+        done();
+      });
+  });
+
+  it('destroys a retweet', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/destroy')
+      .send({'tweetId': destroyRetweetId, 'userId': '165697756'})
+      .end(function (e, res) {
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        done();
+      });
+  });
+
+  var replyId;
+
+  it('posts a reply to an update', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/reply')
+      .send({'message': 'Hello there', 'userId': '165697756', 'in_reply_to_status_id': destroyOriginalTweetId})
+      .end(function (e, res) {
+        replyId = res.body.tweet.id_str;
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        expect(typeof res.body.tweet).to.eql('object');
+        done();
+      });
+  });
+
+  it('destroys a reply', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/destroy')
+      .send({'tweetId': replyId, 'userId': '165697756'})
+      .end(function (e, res) {
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
+        done();
+      });
+  });
+
+  it('destroys a status update', function (done) {
+    superagent.post(baseUrl + '/tweetapp/auth/tweet/destroy')
+      .send({'tweetId': destroyOriginalTweetId, 'userId': '165697756'})
+      .end(function (e, res) {
+        expect(e).to.eql(null);
+        expect(res.status).to.eql(201);
+        expect(res.body.msg).to.eql('Success');
         done();
       });
   });

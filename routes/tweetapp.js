@@ -304,9 +304,6 @@ var postStatusUpdate = function (req, res, next) {
       return next(err);
     }
 
-    console.log('SESSION');
-    console.log(result);
-
     twitterConfig = {
       consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
       consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
@@ -314,17 +311,12 @@ var postStatusUpdate = function (req, res, next) {
       access_token_secret: result.access_token_secret
     };
 
-    console.log(twitterConfig);
-
     client = getClient(req, twitterConfig);
 
     client.postStatusUpdate(params, function (err, result) {
       if (err) {
         return next(err);
       }
-
-      console.log('RESULT');
-      console.log(result);
 
       if (result.id_str) {
         res.status(201).send({'msg': 'Success', 'tweet': result});
@@ -353,9 +345,6 @@ var postStatusDestroy = function (req, res, next) {
       return next(err);
     }
 
-    console.log('SESSION');
-    console.log(result);
-
     twitterConfig = {
       consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
       consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
@@ -363,17 +352,12 @@ var postStatusDestroy = function (req, res, next) {
       access_token_secret: result.access_token_secret
     };
 
-    console.log(twitterConfig);
-
     client = getClient(req, twitterConfig);
 
     client.postStatusDestroy(tweetId, function (err, result) {
       if (err) {
         return next(err);
       }
-
-      console.log('RESULT');
-      console.log(result);
 
       if (result.id_str) {
         res.status(201).send({'msg': 'Success'});
@@ -397,9 +381,6 @@ var postStatusRetweet = function (req, res, next) {
       return next(err);
     }
 
-    console.log('SESSION');
-    console.log(result);
-
     twitterConfig = {
       consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
       consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
@@ -407,17 +388,12 @@ var postStatusRetweet = function (req, res, next) {
       access_token_secret: result.access_token_secret
     };
 
-    console.log(twitterConfig);
-
     client = getClient(req, twitterConfig);
 
     client.postStatusRetweet(tweetId, function (err, result) {
       if (err) {
         return next(err);
       }
-
-      console.log('RESULT');
-      console.log(result);
 
       if (result.id_str) {
         res.status(201).send({'msg': 'Success', 'tweet': result});
@@ -442,9 +418,6 @@ var postStatusFavourite = function (req, res, next) {
       return next(err);
     }
 
-    console.log('SESSION');
-    console.log(result);
-
     twitterConfig = {
       consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
       consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
@@ -452,17 +425,12 @@ var postStatusFavourite = function (req, res, next) {
       access_token_secret: result.access_token_secret
     };
 
-    console.log(twitterConfig);
-
     client = getClient(req, twitterConfig);
 
     client.postStatusFavourite(params, function (err, result) {
       if (err) {
         return next(err);
       }
-
-      console.log('RESULT');
-      console.log(result);
 
       if (result.id_str) {
         res.status(201).send({'msg': 'Success'});
@@ -487,9 +455,6 @@ var postStatusUnFavourite = function (req, res, next) {
       return next(err);
     }
 
-    console.log('SESSION');
-    console.log(result);
-
     twitterConfig = {
       consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
       consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
@@ -497,17 +462,12 @@ var postStatusUnFavourite = function (req, res, next) {
       access_token_secret: result.access_token_secret
     };
 
-    console.log(twitterConfig);
-
     client = getClient(req, twitterConfig);
 
     client.postStatusUnFavourite(params, function (err, result) {
       if (err) {
         return next(err);
       }
-
-      console.log('RESULT');
-      console.log(result);
 
       if (result.id_str) {
         res.status(201).send({'msg': 'Success'});
@@ -531,9 +491,6 @@ var postStatusReply = function (req, res, next) {
       return next(err);
     }
 
-    console.log('SESSION');
-    console.log(result);
-
     twitterConfig = {
       consumer_key: 'f3dJQdmu4bnLrrv4iLOH5pxZS',
       consumer_secret: 'eGkopaQyNQdPtK5sRQG4vBjOMn1VvcMNpf6QGqz0Qs0NRhEs9X',
@@ -541,17 +498,12 @@ var postStatusReply = function (req, res, next) {
       access_token_secret: result.access_token_secret
     };
 
-    console.log(twitterConfig);
-
     client = getClient(req, twitterConfig);
 
     client.postStatusReply(params, function (err, result) {
       if (err) {
         return next(err);
       }
-      
-      console.log('RESULT');
-      console.log(result);
 
       if (result.id_str) {
         res.status(201).send({'msg': 'Success'});
