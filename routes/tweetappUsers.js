@@ -91,7 +91,7 @@ var twitterLoginCallback = function (req, res, next) {
           profile.token = token;
           profile.original_token = original_token;
 
-          db.collection('sessions').update({'user_id': profile.user_id}, profile, {'upsert': true}, function (err) {
+          db.collection('sessions').update({'user_id': profile.user_id, 'token': profile.token}, profile, {'upsert': true}, function (err) {
 
             if (err) {
               console.log(err);
