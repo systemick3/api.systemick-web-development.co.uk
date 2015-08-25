@@ -82,6 +82,20 @@ var getUserAnalyses = function (req, res, next) {
   });
 };
 
+var getUserAnalysisByTerms = function (req, res, next) {
+  var UserAnalysis = require('../modules/UserAnalysis'),
+    db = req.tweetappDb,
+    ua = new UserAnalysis(req.params.userId, db);
+
+  ua.getAnalysisByTerms(function (err, analysis) {
+    if (err) {
+      return next(err);
+    }
+
+    res.status(200).send({ msg: 'success', 'data': analysis });
+  });
+};
+
 var getReplies = function (req, res, next) {
   var start = new Date().getTime(),
     end,
@@ -523,6 +537,7 @@ module.exports = function attachHandlers(app) {
   app.get('/tweetapp/auth/tweet/one/:id', getTweet);
   app.get('/tweetapp/auth/analysis/user/:userId', getUserAnalysis);
   app.get('/tweetapp/auth/analysis/chart/:userId/:analysisCount', getUserAnalyses);
+  app.get('/tweetapp/auth/analysis/terms/:userId', getUserAnalysisByTerms);
   app.get('/tweetapp/auth/tweet/retweeters/:tweetId', getRetweeters);
   app.get('/tweetapp/auth/tweet/replies/:userId/:tweetId', getReplies);
   app.get('/tweetapp/auth/tweet/trends', getTrends);

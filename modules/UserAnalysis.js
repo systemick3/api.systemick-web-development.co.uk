@@ -275,6 +275,44 @@ UserAnalysis.prototype = {
     });
   },
 
+  getAnalysisByTerms: function (callback) {
+    var db = this.db,
+      userId = this.userId,
+      d = new Date("October 13, 2014 11:13:00"), // Before this app was created
+      tweets,
+      i,
+      j,
+      hashtags,
+      hashtag,
+      results = {},
+      getTweetsSince = this.getTweetsSince,
+      params = {
+        userId: userId,
+        ts: d.getTime()
+      };
+
+    getTweetsSince(db, params, function (err, tweets) { 
+      for (i = 0; i < tweets.length; i++) {
+        if (tweets[i].entities.hashtags.length > 0) {
+          hashtags = tweets[i].entities.hashtags;
+          for (j = 0; j < hashtags.length; j++) {
+            hashtag = hashtags[j].text;
+            console.log(hashtag);
+            if (!results.hasOwnProperty(hashtag)) {
+              results[hashtag] = {count: 0, favourites: 0, retweets: 0, mentions: 0};
+            }
+
+            results[hashtag].favourites = results[hashtag].favourites + tweets[i].favorite_count;
+            results[hashtag].retweets = results[hashtag].favourites + tweets[i].retweet_count;
+            results[hashtag].count++;
+          }
+        }
+      }
+
+      callback(null, results);
+    });
+  },
+
   // Utility function to insert tweets pulled
   // from Twitter into database
   insertTweets: function (tweets, callback) {
